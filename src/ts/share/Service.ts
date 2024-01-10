@@ -1,5 +1,5 @@
 import { StringUtils } from "../utils/StringUtils";
-import { OdeServices } from "../services/OdeServices";
+import { IOdeServices } from "../services/OdeServices";
 
 import {
   GetResourceRightPayload,
@@ -19,7 +19,7 @@ export class ShareService {
   //
   // IMPLEMENTATION
   //
-  constructor(protected context: OdeServices) {}
+  constructor(protected context: IOdeServices) {}
 
   get directory() {
     return this.context.directory();
@@ -154,9 +154,8 @@ export class ShareService {
     const visibleBookmarks = await this.directory.getBookMarks();
     // get rights for this ressources
     const url = this.context.resource(app, app).getShareReadUrl(resourceId);
-    const rightsPayload = await this.cache.httpGetJson<GetResourceRightPayload>(
-      url,
-    );
+    const rightsPayload =
+      await this.cache.httpGetJson<GetResourceRightPayload>(url);
     // get mapping between rights and normalized rights
     const sharingMap = await this.getShareMapping(app);
     // get normalized rights infos

@@ -7,7 +7,6 @@ import {
   CreateFolderParameters,
   MoveParameters,
   IActionResult,
-  TrashParameters,
   CreateFolderResult,
   UpdateFolderParameters,
   ID,
@@ -16,40 +15,80 @@ import {
   ResourceType,
   App,
 } from "..";
-import { OdeServices } from "../services/OdeServices";
+import { IOdeServices } from "../services/OdeServices";
 import {
   CreateParameters,
   CreateResult,
+  IResourceService,
+  IWebResourceService,
   UpdateParameters,
   UpdateResult,
 } from "./interface";
 
-export abstract class ResourceService {
+export abstract class ResourceService
+  implements IResourceService, IWebResourceService
+{
   //
   // STATIC REGISTRY
   //
   private static registry = new Map<
     string,
-    (context: OdeServices) => ResourceService
+    (context: IOdeServices) => IResourceService & IWebResourceService
   >();
 
+  /** Register a service */
   static register(
     {
       application,
       resourceType,
-    }: { application: string; resourceType: string },
-    service: (context: OdeServices) => ResourceService,
+    }: { application: App | string; resourceType: ResourceType },
+    service: (context: IOdeServices) => IResourceService & IWebResourceService,
   ) {
     ResourceService.registry.set(`${application}:main`, service);
     ResourceService.registry.set(`${application}:${resourceType}`, service);
   }
+
+  /** Lookup for a service */
   static findService(
+    lookFor: { application: App | string; resourceType: ResourceType },
+    context: IOdeServices,
+  ): IResourceService & IWebResourceService {
+    return ResourceService.lookupService(lookFor, context);
+  }
+
+  /** Lookup for a main service */
+  static findMainService(
+    { application }: { application: App | string },
+    context: IOdeServices,
+  ): IResourceService & IWebResourceService {
+    return ResourceService.lookupService(
+      { application, resourceType: "main" },
+      context,
+    );
+  }
+
+  /** Check if a service is registered. */
+  static isRegistered({
+    application,
+    resourceType,
+  }: {
+    application: App | string;
+    resourceType: ResourceType | "main";
+  }): boolean {
+    const found = ResourceService.registry.get(
+      `${application}:${resourceType}`,
+    );
+    return found !== undefined;
+  }
+
+  /** Private lookup for a service */
+  private static lookupService(
     {
       application,
       resourceType,
-    }: { application: string; resourceType: string },
-    context: OdeServices,
-  ): ResourceService {
+    }: { application: App | string; resourceType: ResourceType | "main" },
+    context: IOdeServices,
+  ): IResourceService & IWebResourceService {
     const found = ResourceService.registry.get(
       `${application}:${resourceType}`,
     );
@@ -58,28 +97,20 @@ export abstract class ResourceService {
     }
     return found(context);
   }
-  static findMainService(
-    { application }: { application: string },
-    context: OdeServices,
-  ): ResourceService {
-    const found = ResourceService.registry.get(`${application}:main`);
-    if (found === undefined) {
-      throw "Service not found: " + `${application}`;
-    }
-    return found(context);
-  }
+
   //
   // IMPLEMENTATION
   //
-  constructor(protected context: OdeServices) {}
+  constructor(protected context: IOdeServices) {}
 
   protected get http() {
     return this.context.http();
   }
+
   //
   // ABSTRACT METHOD
   //
-  abstract getApplication(): string;
+  abstract getApplication(): App | string;
 
   abstract getPrintUrl(resourceId: string, withComment?: boolean): string;
 
@@ -101,20 +132,6 @@ export abstract class ResourceService {
   }
   getSaveShareUrl(id: string) {
     return `/${this.getApplication()}/share/resource/${id}`;
-  }
-  //
-  // SHARED METHOD
-  //
-  gotoPrint(resourceId: string, withComment?: boolean): void {
-    window.open(this.getPrintUrl(resourceId, withComment), "_blank");
-  }
-
-  gotoView(resourceId: string): void {
-    window.open(this.getViewUrl(resourceId), "_self");
-  }
-
-  gotoForm(folderId?: string) {
-    window.open(this.getFormUrl(folderId), "_self");
   }
 
   async publish(parameters: PublishParameters): Promise<PublishResult> {
@@ -172,7 +189,6 @@ export abstract class ResourceService {
   //
   // FOLDER METHODS
   //
-  /** Create a search context. */
   async createContext(
     parameters: GetContextParameters,
   ): Promise<GetContextResult> {
@@ -182,7 +198,6 @@ export abstract class ResourceService {
     return this.checkHttpResponse(result);
   }
 
-  /** Search / paginate within a search context. */
   async searchContext(
     parameters: GetContextParameters,
   ): Promise<ISearchResults> {
@@ -195,7 +210,6 @@ export abstract class ResourceService {
     return this.checkHttpResponse(result);
   }
 
-  /** Create a new folder. */
   async createFolder(
     parameters: CreateFolderParameters,
   ): Promise<CreateFolderResult> {
@@ -206,7 +220,6 @@ export abstract class ResourceService {
     return this.checkHttpResponse(result);
   }
 
-  /** Update folder. */
   async updateFolder(
     parameters: UpdateFolderParameters,
   ): Promise<CreateFolderResult> {
@@ -217,14 +230,13 @@ export abstract class ResourceService {
     return this.checkHttpResponse(result);
   }
 
-  /** Move resources/folders to a folder. */
   async moveToFolder(
     parameters: MoveParameters,
     useAssetId = false,
   ): Promise<IActionResult> {
     parameters.resourceIds = useAssetId
       ? await this.mapAssetIdToIds({
-          app: parameters.application,
+          application: parameters.application,
           assetIds: parameters.resourceIds,
         })
       : parameters.resourceIds;
@@ -235,7 +247,6 @@ export abstract class ResourceService {
     return this.checkHttpResponse(result);
   }
 
-  /** List subfolders of a parent folder. */
   async listSubfolders(folderId: ID): Promise<GetSubFoldersResult> {
     const result = await this.http.get<GetSubFoldersResult>(
       `/explorer/folders/${folderId}`,
@@ -243,14 +254,13 @@ export abstract class ResourceService {
     return this.checkHttpResponse(result);
   }
 
-  /** Delete folders and/or resources. */
   async deleteAll(
     parameters: DeleteParameters,
     useAssetId = false,
   ): Promise<IActionResult> {
     parameters.resourceIds = useAssetId
       ? await this.mapAssetIdToIds({
-          app: parameters.application,
+          application: parameters.application,
           assetIds: parameters.resourceIds,
         })
       : parameters.resourceIds;
@@ -261,14 +271,13 @@ export abstract class ResourceService {
     return this.checkHttpResponse(result);
   }
 
-  /** Trash folders and/or resources. */
   async trashAll(
-    { resourceType, ...parameters }: Omit<TrashParameters, "trash">,
+    { resourceType, ...parameters }: DeleteParameters,
     useAssetId = false,
   ): Promise<IActionResult> {
     parameters.resourceIds = useAssetId
       ? await this.mapAssetIdToIds({
-          app: parameters.application,
+          application: parameters.application,
           assetIds: parameters.resourceIds,
         })
       : parameters.resourceIds;
@@ -280,12 +289,12 @@ export abstract class ResourceService {
   }
   /** Trash folders and/or resources. */
   async restoreAll(
-    { resourceType, ...parameters }: Omit<TrashParameters, "trash">,
+    { resourceType, ...parameters }: DeleteParameters,
     useAssetId = false,
   ): Promise<IActionResult> {
     parameters.resourceIds = useAssetId
       ? await this.mapAssetIdToIds({
-          app: parameters.application,
+          application: parameters.application,
           assetIds: parameters.resourceIds,
         })
       : parameters.resourceIds;
@@ -306,14 +315,14 @@ export abstract class ResourceService {
   };
 
   private async mapAssetIdToIds({
-    app,
+    application,
     assetIds,
   }: {
-    assetIds: string[];
-    app: string;
+    assetIds: ID[];
+    application: App | string;
   }) {
     const resources = await this.searchContext({
-      app: app as App,
+      application,
       pagination: { startIdx: 0, pageSize: assetIds.length + 1 },
       types: [],
       filters: {},
@@ -357,49 +366,51 @@ export abstract class ResourceService {
   //
   // PRIVATE HELPERS
   //
-  private toQueryParams(p: GetContextParameters): Record<string, string> {
+  private toQueryParams(
+    parameters: GetContextParameters,
+  ): Record<string, string> {
     let ret = {
-      application: p.app,
-      start_idx: p.pagination.startIdx,
-      page_size: p.pagination.pageSize,
-      trashed: p.trashed,
+      application: parameters.application,
+      start_idx: parameters.pagination.startIdx,
+      page_size: parameters.pagination.pageSize,
+      trashed: parameters.trashed,
     } as any;
-    if (p.types.length > 0) {
-      ret.resource_type = p.types[0];
+    if (parameters.types.length > 0) {
+      ret.resource_type = parameters.types[0];
     }
-    if (p.orders && Object.entries(p.orders).length) {
+    if (parameters.orders && Object.entries(parameters.orders).length) {
       // axios serialize array as name[] (not compatible with current api)
-      const [[key, value]] = Object.entries(p.orders);
+      const [[key, value]] = Object.entries(parameters.orders);
       ret.order_by = `${key}:${value}`;
     }
-    if (p.filters) {
-      Object.assign(ret, p.filters);
+    if (parameters.filters) {
+      Object.assign(ret, parameters.filters);
     }
-    if (typeof p.search === "string") {
-      ret.search = p.search;
+    if (typeof parameters.search === "string") {
+      ret.search = parameters.search;
     }
-    if (typeof p.asset_id !== "undefined") {
-      ret.asset_id = [...p.asset_id];
+    if (typeof parameters.asset_id !== "undefined") {
+      ret.asset_id = [...parameters.asset_id];
     }
-    if (typeof p.id !== "undefined") {
-      ret.id = p.id;
+    if (typeof parameters.id !== "undefined") {
+      ret.id = parameters.id;
     }
     return ret;
   }
-  private createFolderToBodyParams(p: CreateFolderParameters) {
+  private createFolderToBodyParams(parameters: CreateFolderParameters) {
     return {
-      application: p.app,
-      resourceType: p.type,
-      parentId: p.parentId,
-      name: p.name,
+      application: parameters.application,
+      resourceType: parameters.type,
+      parentId: parameters.parentId,
+      name: parameters.name,
     };
   }
-  private moveToBodyParams(p: MoveParameters) {
+  private moveToBodyParams(parameters: MoveParameters) {
     return {
-      application: p.application,
+      application: parameters.application,
       resourceType: this.getResourceType(),
-      resourceIds: p.resourceIds,
-      folderIds: p.folderIds,
+      resourceIds: parameters.resourceIds,
+      folderIds: parameters.folderIds,
     };
   }
 }

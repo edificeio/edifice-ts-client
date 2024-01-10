@@ -6,7 +6,7 @@ import axios, {
 } from "axios";
 import { ERROR_CODE } from "../globals";
 import { IHttpResponse, IHttpParams } from "./interfaces";
-import { OdeServices } from "../services/OdeServices";
+import { IOdeServices } from "../services/OdeServices";
 
 const loadedScripts: { [url: string]: boolean } = {};
 
@@ -18,7 +18,7 @@ export class HttpService {
   private _latestResponse: any;
 
   constructor(
-    private context: OdeServices,
+    private context: IOdeServices,
     params?: any,
   ) {
     this.axios = axios.create(params);
