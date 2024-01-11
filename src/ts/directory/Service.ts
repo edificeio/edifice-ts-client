@@ -1,4 +1,4 @@
-import { OdeServices } from "../services/OdeServices";
+import { IOdeServices } from "../services/OdeServices";
 import {
   Bookmark,
   BookmarkGetResponse,
@@ -10,7 +10,7 @@ import {
 } from "./interface";
 
 export class DirectoryService {
-  constructor(private odeServices: OdeServices) {}
+  constructor(private odeServices: IOdeServices) {}
   private get http() {
     return this.odeServices.http();
   }
@@ -94,9 +94,8 @@ export class DirectoryService {
     });
     const bookmarkDetailPromises = bookmarks.map(async (bookmark) => {
       if (typeof bookmark === "string") {
-        const { displayName, groups, id, users } = await this.getBookMarkById(
-          bookmark,
-        );
+        const { displayName, groups, id, users } =
+          await this.getBookMarkById(bookmark);
         const usersId = users.map((user) => user.id);
         const groupId = groups.map((user) => user.id);
         const tmp: BookmarkWithMembers = {

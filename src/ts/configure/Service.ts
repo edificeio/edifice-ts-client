@@ -34,6 +34,13 @@ export class ConfService {
     };
   }
 
+  async getPublicConf(app: App): Promise<any> {
+    const publicConfResponse = await this.http.get<any>(`/${app}/conf/public`, {
+      queryParams: { _: configure.Platform.deploymentTag },
+    });
+    return publicConfResponse;
+  }
+
   getCdnUrl(): string | undefined {
     //TODO to implement
     console.warn("[getCdnUrl] Not implemented yet");

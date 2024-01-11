@@ -9,6 +9,10 @@ import { ShareService } from "../share/Service";
 import { WorkspaceService } from "../workspace/Service";
 import { IdiomService } from "../idiom/Service";
 import { AnalyticsService } from "../analytics/Service";
+import { VideoService } from "../video/Service";
+import { App, ResourceType } from "../globals";
+import { IResourceService, IWebResourceService } from "../resources/interface";
+import { EmbedderService } from "../embedder/Service";
 
 export interface IOdeServices {
   analytics(): AnalyticsService;
@@ -17,11 +21,16 @@ export interface IOdeServices {
   directory(): DirectoryService;
   http(): HttpService;
   idiom(): IdiomService;
-  resource(application: string, resourceType?: string): ResourceService;
+  resource(
+    application: App,
+    resourceType?: ResourceType,
+  ): IResourceService & IWebResourceService;
   rights(): RightService;
   session(): SessionService;
   share(): ShareService;
+  video(): VideoService;
   workspace(): WorkspaceService;
+  embedder(): EmbedderService;
 }
 
 export class OdeServices implements IOdeServices {
@@ -34,7 +43,9 @@ export class OdeServices implements IOdeServices {
   private _rights: RightService;
   private _session: SessionService;
   private _share: ShareService;
+  private _video: VideoService;
   private _workspace: WorkspaceService;
+  private _embedder: EmbedderService;
 
   constructor() {
     this._analytics = new AnalyticsService(this);
@@ -46,7 +57,9 @@ export class OdeServices implements IOdeServices {
     this._rights = new RightService(this);
     this._session = new SessionService(this);
     this._share = new ShareService(this);
+    this._video = new VideoService(this);
     this._workspace = new WorkspaceService(this);
+    this._embedder = new EmbedderService(this);
   }
 
   analytics() {
@@ -73,7 +86,10 @@ export class OdeServices implements IOdeServices {
     return this._idiom;
   }
 
-  resource(application: string, resourceType?: string): ResourceService {
+  resource(
+    application: App,
+    resourceType?: ResourceType,
+  ): IResourceService & IWebResourceService {
     if (!resourceType) {
       return ResourceService.findMainService({ application }, this);
     }
@@ -92,7 +108,15 @@ export class OdeServices implements IOdeServices {
     return this._share;
   }
 
+  video() {
+    return this._video;
+  }
+
   workspace() {
     return this._workspace;
+  }
+
+  embedder() {
+    return this._embedder;
   }
 }

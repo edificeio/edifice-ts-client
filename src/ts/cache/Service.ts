@@ -1,11 +1,11 @@
 import { IHttpParams, IHttpResponse } from "../transport/interfaces";
-import { OdeServices } from "../services/OdeServices";
+import { IOdeServices } from "../services/OdeServices";
 
 const globalCache: Record<string, any> = {};
 const mutexPromise: Record<string, Promise<any>> = {};
 
 export class CacheService {
-  constructor(private context: OdeServices) {}
+  constructor(private context: IOdeServices) {}
 
   private get http() {
     return this.context.http();

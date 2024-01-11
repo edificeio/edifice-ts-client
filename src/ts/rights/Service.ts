@@ -1,9 +1,8 @@
-import { RightStringified } from "../explorer/interfaces";
-import { OdeServices } from "../services/OdeServices";
-import { ResourceRight, RightRole } from "./interface";
+import { IOdeServices } from "../services/OdeServices";
+import { ResourceRight, RightRole, RightStringified } from "./interface";
 
 export class RightService {
-  constructor(private context: OdeServices) {}
+  constructor(private context: IOdeServices) {}
   get session() {
     return this.context.session();
   }

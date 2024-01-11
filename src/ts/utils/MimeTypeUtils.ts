@@ -7,12 +7,14 @@ export class MimeTypeUtils {
   private csvContentType = new Set<string>();
   private csvExtensions = new Set<string>();
   private txtExtensions = new Set<string>();
+  private mdExtensions = new Set<string>();
   public PDF = "application/pdf";
   public OCTET_STREAM = "application/octet-stream";
 
   constructor() {
     //txt
     this.txtExtensions.add("txt");
+    this.mdExtensions.add("md");
     //word extensions
     this.wordExtensions.add("doc");
     this.wordExtensions.add("dot");
@@ -187,17 +189,18 @@ export class MimeTypeUtils {
     this.fileExtensionMap.set("oxt", "application/vnd.openofficeorg.extension");
     //
     this.fileExtensionMap.set("txt", "text/plain");
+    this.fileExtensionMap.set("md", "text/markdown");
     // CSV
     this.csvContentType.add("text/comma-separated-values");
     this.csvContentType.add("text/csv");
     this.csvContentType.add("application/csv");
   }
 
-  getContentTypeForExtension(extension: string): string | undefined {
+  getContentTypeForExtension(extension: string): string | null {
     if (this.fileExtensionMap.has(extension)) {
-      return this.fileExtensionMap.get(extension);
+      return this.fileExtensionMap.get(extension) ?? null;
     }
-    return undefined;
+    return null;
   }
 
   getExtensionForContentType(contentType: string): string | null {
@@ -261,6 +264,16 @@ export class MimeTypeUtils {
     }
     if (contentType == this.OCTET_STREAM && originalExt) {
       return this.txtExtensions.has(originalExt);
+    }
+    return false;
+  }
+  isMdLike(contentType: string, originalExt?: string): boolean {
+    const extension = this.getExtensionForContentType(contentType);
+    if (extension) {
+      return this.mdExtensions.has(extension);
+    }
+    if (contentType == this.OCTET_STREAM && originalExt) {
+      return this.mdExtensions.has(originalExt);
     }
     return false;
   }

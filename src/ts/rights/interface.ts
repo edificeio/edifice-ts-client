@@ -16,3 +16,6 @@ export interface ResourceRight {
   id: string;
   right: RightRole;
 }
+
+/** FIXME */
+export type RightStringified = string;
