@@ -1,11 +1,10 @@
-import { Subject } from "rxjs";
 import { ITheme, IThemeOverrides } from "../configure/interfaces";
 import { IUserInfo } from "../session/interfaces";
 import { notify } from "./Framework";
+import { IHttpParams, IHttpResponse } from "../transport/interfaces";
 
 //-------------------------------------
 export abstract class NotifyFrameworkFactory {
-  //-------------------------------------
   static instance(): INotifyFramework {
     return notify;
   }
@@ -13,7 +12,6 @@ export abstract class NotifyFrameworkFactory {
 
 //-------------------------------------
 export interface INotifyFramework {
-  //-------------------------------------
   /**
    * Notify that a process is done and data ready or rejected.
    * Utility method : wrap your own Promise.
@@ -50,14 +48,13 @@ export interface INotifyFramework {
   /**
    * Notify that an event occured.
    * By definition, an event can occur multiple times (otherwise it is a one-time "process", see above) and be watched by many targets.
-   * => We use RxJS Subject to model events stream with many potential subscribers.
+   * => We model it as a subject with many potential subscribers.
    */
-  events(): Subject<{ name: EventName; layer: LayerName | string; data?: any }>;
+  events(): ISubject;
 }
 
 //-------------------------------------
 export interface IPromisified<T> {
-  //-------------------------------------
   readonly promise: Promise<T>;
   resolve: (value: T | PromiseLike<T>) => void;
   reject: (reason?: any) => void;
@@ -65,16 +62,55 @@ export interface IPromisified<T> {
 
 //-------------------------------------
 export const LAYER_NAME = {
-  //-------------------------------------
   WIDGETS: "widgets",
   EXPLORER: "explorer",
+  TRANSPORT: "transport",
 } as const;
 export type LayerName = (typeof LAYER_NAME)[keyof typeof LAYER_NAME];
 
 //-------------------------------------
 export const EVENT_NAME = {
-  //-------------------------------------
   USERPREF_CHANGED: "userprefChanged",
   SEARCH_RESULTED: "searchResulted",
+  ERROR_OCCURED: "error",
 } as const;
 export type EventName = (typeof EVENT_NAME)[keyof typeof EVENT_NAME];
+
+
+/** Generic typing of an event message. */
+//-------------------------------------
+export interface ISubjectMessage {
+  name: EventName;
+  data?: any;
+}
+/** Handler of subject messages. */
+export type ISubjectSubscription<T extends ISubjectMessage> = (message: T) => void;
+/** Used to release an handler of subject messages. */
+export type ISubjectRevokation = () => void;
+
+/** Typing of error messages on the TRANSPORT layer. */
+//-------------------------------------
+export interface IHttpErrorEvent extends ISubjectMessage {
+  name: typeof EVENT_NAME.ERROR_OCCURED;
+  data: {
+    params?: IHttpParams;
+    response: IHttpResponse;
+    payload?: any;
+  }
+}
+
+export type TransportLayer = typeof LAYER_NAME.TRANSPORT;
+
+/** Generic typing of a subject. */
+//-------------------------------------
+export interface ISubject {
+  publish( layer: Omit<LayerName, TransportLayer>, message: ISubjectMessage ): void;
+  subscribe( layer: Omit<LayerName, TransportLayer>, handler: ISubjectSubscription<ISubjectMessage>): ISubjectRevokation;
+}
+
+/** Overloaded typing of a subject, dedicated to transport errors. */
+//-------------------------------------
+export declare interface ISubject {
+  publish( layer: TransportLayer, message: IHttpErrorEvent): void;
+  subscribe( layer: TransportLayer, handler: ISubjectSubscription<IHttpErrorEvent>): ISubjectRevokation;
+}

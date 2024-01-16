@@ -1,7 +1,6 @@
-import { Subject } from "rxjs";
-import { EventName, LayerName } from "..";
 import { ITheme, IThemeOverrides } from "../configure/interfaces";
 import { IUserInfo } from "../session/interfaces";
+import { Subject } from "./Subject";
 import { IPromisified, INotifyFramework } from "./interfaces";
 
 type PromiseRegistry = { [name: string]: Promisified<any> };
@@ -39,11 +38,7 @@ export class Promisified<T> implements IPromisified<T> {
 class NotifyFramework implements INotifyFramework {
   //-------------------------------------
   private promises: PromiseRegistry = {};
-  private subject: Subject<{
-    name: EventName;
-    layer: LayerName | string;
-    data?: any;
-  }> = new Subject();
+  private subject: Subject = new Subject();
 
   private asyncData<T>(asyncDataName: string): Promisified<T> {
     if (typeof this.promises[asyncDataName] === "undefined") {
@@ -73,11 +68,7 @@ class NotifyFramework implements INotifyFramework {
     return new Promisified<T>();
   }
 
-  public events(): Subject<{
-    name: EventName;
-    layer: LayerName | string;
-    data?: any;
-  }> {
+  public events(): Subject {
     return this.subject;
   }
 }

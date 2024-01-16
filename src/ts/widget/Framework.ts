@@ -140,9 +140,8 @@ export class WidgetFramework implements IWidgetFramework {
       .update("widgets", this._userPrefs)
       .save("widgets")
       .then(() => {
-        notify.events().next({
-          name: EVENT_NAME.USERPREF_CHANGED,
-          layer: LAYER_NAME.WIDGETS,
+        notify.events().publish( LAYER_NAME.WIDGETS, {
+            name: EVENT_NAME.USERPREF_CHANGED,
         });
       });
   }
