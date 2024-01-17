@@ -16,15 +16,26 @@ export class Subject implements ISubject {
     BroadcastChannel
   >();
 
+  private getChannelName(layer: string): string {
+    return "Subject:" + layer;
+  }
+
   private getChannel(layer: string): BroadcastChannel {
-    const name = "Subject:" + layer;
+    const name = this.getChannelName(layer);
     let channel = this.channels.get(name);
     if (!channel) {
-      channel = new BroadcastChannel(name);
+      channel = this.newChannel(layer);
       this.channels.set(name, channel);
     }
     return channel;
   }
+
+  public newChannel(layer: string): BroadcastChannel {
+    const name = this.getChannelName(layer);
+    const channel = new BroadcastChannel(name);
+    channel.addEventListener('messageerror', ev => console.log(ev.data) );
+    return channel;
+}
 
   publish(layer: LayerName, message: ISubjectMessage | IHttpErrorEvent): void {
     typeof layer === "string" && this.getChannel(layer).postMessage(message);

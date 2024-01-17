@@ -13,6 +13,7 @@ import { VideoService } from "../video/Service";
 import { App, ResourceType } from "../globals";
 import { IResourceService, IWebResourceService } from "../resources/interface";
 import { EmbedderService } from "../embedder/Service";
+import { INotifyFramework, NotifyFrameworkFactory } from "../notify/interfaces";
 
 export interface IOdeServices {
   analytics(): AnalyticsService;
@@ -21,6 +22,7 @@ export interface IOdeServices {
   directory(): DirectoryService;
   http(): HttpService;
   idiom(): IdiomService;
+  notify(): INotifyFramework;
   resource(
     application: App,
     resourceType?: ResourceType,
@@ -40,6 +42,7 @@ export class OdeServices implements IOdeServices {
   private _directory: DirectoryService;
   private _http: HttpService;
   private _idiom: IdiomService;
+  private _notify: INotifyFramework;
   private _rights: RightService;
   private _session: SessionService;
   private _share: ShareService;
@@ -54,6 +57,7 @@ export class OdeServices implements IOdeServices {
     this._directory = new DirectoryService(this);
     this._http = new HttpService(this);
     this._idiom = new IdiomService(this);
+    this._notify = NotifyFrameworkFactory.instance();
     this._rights = new RightService(this);
     this._session = new SessionService(this);
     this._share = new ShareService(this);
@@ -84,6 +88,10 @@ export class OdeServices implements IOdeServices {
 
   idiom() {
     return this._idiom;
+  }
+
+  notify() {
+    return this._notify;
   }
 
   resource(
