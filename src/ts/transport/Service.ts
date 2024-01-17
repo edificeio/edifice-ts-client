@@ -5,23 +5,27 @@ import axios, {
   AxiosResponse,
 } from "axios";
 import { ERROR_CODE } from "../globals";
-import { IHttpResponse, IHttpParams } from "./interfaces";
+import { IHttpResponse, IHttpParams, IHttp } from "./interfaces";
 import { IOdeServices } from "../services/OdeServices";
+import { notify } from "../notify/Framework";
+import { EVENT_NAME, LAYER_NAME } from "../notify/interfaces";
 
 const loadedScripts: { [url: string]: boolean } = {};
 
-export class HttpService {
+export class HttpService implements IHttp {
   // Axios automatically manages the XSRF-TOKEN cookie and the X-XSRF-TOKEN HTTP header.
   private axios: AxiosInstance;
   private baseUrl?: string;
   private headers: Record<string, string> = {};
   private _latestResponse: any;
+  private channel: BroadcastChannel;
 
   constructor(
     private context: IOdeServices,
     params?: any,
   ) {
     this.axios = axios.create(params);
+    this.channel = notify.events().newChannel(LAYER_NAME.TRANSPORT);
   }
 
   private fixBaseUrl(url: string) {
@@ -139,7 +143,7 @@ export class HttpService {
   }
 
   private mapAxiosError<R>(error: AxiosError<R>, params?: IHttpParams): R {
-    console.error("[HttpService]", error);
+    //console.error("[HttpService]", error);
     // AxiosError.response and our HttpResponse share the same properties.
     // So we can use it directly, saving CPU and memory.
     // Otherwise, we would map the axios response to our own model.
@@ -165,13 +169,21 @@ export class HttpService {
 
     /* TODO : manage params.requestName through an events[]. See infra-front http.ts */
 
-    // Notify error unless disabled.
-    if (!params || params.disableNotifications === false) {
-      // FIXME This really should be an rxjs Subject
-      // notify.onEvent( EVENT_NAME.HTTP_ERROR ).next( new HttpErrorNotice(''+this._latestResponse.status, this._latestResponse.statusText) );
-    }
+    const { status, statusText, headers, data } = this
+      ._latestResponse as AxiosResponse;
 
-    return this._latestResponse;
+    // Notify errors unless explicitely disabled.
+    params?.disableNotifications ||
+      this.channel.postMessage({
+        name: EVENT_NAME.ERROR_OCCURED,
+        data: {
+          params,
+          response: { status, statusText, headers },
+          payload: data,
+        },
+      });
+
+    return data;
   }
 
   private mapAxiosResponse<R>(

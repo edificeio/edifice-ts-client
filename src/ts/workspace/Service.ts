@@ -47,6 +47,12 @@ export class WorkspaceService {
   private get http() {
     return this.context.http();
   }
+
+  private get isAxiosError() {
+    const response = this.http.latestResponse;
+    return (!response || response.status < 200 || response.status >= 300);
+  }
+
   private extractMetadata(file: Blob | File) {
     const tmpName = file.name || "";
     const nameSplit = tmpName.split(".");
@@ -66,6 +72,7 @@ export class WorkspaceService {
       : basename;
     return { basename, fullname, metadata };
   }
+
   async saveFile(
     file: Blob | File,
     params?: {
@@ -98,8 +105,12 @@ export class WorkspaceService {
       `/workspace/document?${args.join("&")}`,
       formData,
     );
+    if( this.isAxiosError ) {
+      throw this.http.latestResponse.statusText;
+    }
     return res;
   }
+
   async updateFile(
     id: string,
     file: Blob | File,
@@ -129,6 +140,9 @@ export class WorkspaceService {
       `/workspace/document/${id}?${args.join("&")}`,
       formData,
     );
+    if( this.isAxiosError ) {
+      throw this.http.latestResponse.statusText;
+    }
     return res;
   }
 
@@ -140,6 +154,9 @@ export class WorkspaceService {
       await this.http.deleteJson<WorkspaceElement>(`/workspace/documents`, {
         ids,
       });
+      if( this.isAxiosError ) {
+        throw this.http.latestResponse.statusText;
+      }
     }
   }
 
