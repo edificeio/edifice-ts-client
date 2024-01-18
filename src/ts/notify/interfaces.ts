@@ -76,7 +76,6 @@ export const EVENT_NAME = {
 } as const;
 export type EventName = (typeof EVENT_NAME)[keyof typeof EVENT_NAME];
 
-
 /** Generic typing of an event message. */
 //-------------------------------------
 export interface ISubjectMessage {
@@ -84,7 +83,9 @@ export interface ISubjectMessage {
   data?: any;
 }
 /** Handler of subject messages. */
-export type ISubjectSubscription<T extends ISubjectMessage> = (message: T) => void;
+export type ISubjectSubscription<T extends ISubjectMessage> = (
+  message: T,
+) => void;
 /** Used to release an handler of subject messages. */
 export type ISubjectRevokation = () => void;
 
@@ -96,7 +97,7 @@ export interface IHttpErrorEvent extends ISubjectMessage {
     params?: IHttpParams;
     response: IHttpResponse;
     payload?: any;
-  }
+  };
 }
 
 export type TransportLayer = typeof LAYER_NAME.TRANSPORT;
@@ -104,13 +105,22 @@ export type TransportLayer = typeof LAYER_NAME.TRANSPORT;
 /** Generic typing of a subject. */
 //-------------------------------------
 export interface ISubject {
-  publish( layer: Omit<LayerName, TransportLayer>, message: ISubjectMessage ): void;
-  subscribe( layer: Omit<LayerName, TransportLayer>, handler: ISubjectSubscription<ISubjectMessage>): ISubjectRevokation;
+  publish(
+    layer: Omit<LayerName, TransportLayer>,
+    message: ISubjectMessage,
+  ): void;
+  subscribe(
+    layer: Omit<LayerName, TransportLayer>,
+    handler: ISubjectSubscription<ISubjectMessage>,
+  ): ISubjectRevokation;
 }
 
 /** Overloaded typing of a subject, dedicated to transport errors. */
 //-------------------------------------
 export declare interface ISubject {
-  publish( layer: TransportLayer, message: IHttpErrorEvent): void;
-  subscribe( layer: TransportLayer, handler: ISubjectSubscription<IHttpErrorEvent>): ISubjectRevokation;
+  publish(layer: TransportLayer, message: IHttpErrorEvent): void;
+  subscribe(
+    layer: TransportLayer,
+    handler: ISubjectSubscription<IHttpErrorEvent>,
+  ): ISubjectRevokation;
 }

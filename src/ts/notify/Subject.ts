@@ -33,9 +33,9 @@ export class Subject implements ISubject {
   public newChannel(layer: string): BroadcastChannel {
     const name = this.getChannelName(layer);
     const channel = new BroadcastChannel(name);
-    channel.addEventListener('messageerror', ev => console.log(ev.data) );
+    channel.addEventListener("messageerror", (ev) => console.log(ev.data));
     return channel;
-}
+  }
 
   publish(layer: LayerName, message: ISubjectMessage | IHttpErrorEvent): void {
     typeof layer === "string" && this.getChannel(layer).postMessage(message);
@@ -43,7 +43,7 @@ export class Subject implements ISubject {
 
   subscribe<T extends ISubjectMessage>(
     layer: LayerName,
-    handler:ISubjectSubscription<T>,
+    handler: ISubjectSubscription<T>,
   ): ISubjectRevokation {
     if (typeof layer === "string") {
       const channel = this.getChannel(layer);

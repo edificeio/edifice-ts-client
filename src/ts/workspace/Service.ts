@@ -50,7 +50,7 @@ export class WorkspaceService {
 
   private get isAxiosError() {
     const response = this.http.latestResponse;
-    return (!response || response.status < 200 || response.status >= 300);
+    return !response || response.status < 200 || response.status >= 300;
   }
 
   private extractMetadata(file: Blob | File) {
@@ -105,7 +105,7 @@ export class WorkspaceService {
       `/workspace/document?${args.join("&")}`,
       formData,
     );
-    if( this.isAxiosError ) {
+    if (this.isAxiosError) {
       throw this.http.latestResponse.statusText;
     }
     return res;
@@ -140,7 +140,7 @@ export class WorkspaceService {
       `/workspace/document/${id}?${args.join("&")}`,
       formData,
     );
-    if( this.isAxiosError ) {
+    if (this.isAxiosError) {
       throw this.http.latestResponse.statusText;
     }
     return res;
@@ -154,7 +154,7 @@ export class WorkspaceService {
       await this.http.deleteJson<WorkspaceElement>(`/workspace/documents`, {
         ids,
       });
-      if( this.isAxiosError ) {
+      if (this.isAxiosError) {
         throw this.http.latestResponse.statusText;
       }
     }

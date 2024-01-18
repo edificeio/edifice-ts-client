@@ -390,7 +390,7 @@ export interface DeleteParameters extends IActionParameters {
 }
 export interface TrashParameters extends DeleteParameters {
   trash: boolean;
-};
+}
 
 /* TODO resources ? */
 export type GetResourcesParameters = IActionParameters & ISearchParameters;
