@@ -203,6 +203,12 @@ export class HttpService implements IHttp {
     return this._latestResponse;
   }
 
+  isResponseError(): boolean {
+    return (
+      this.latestResponse.status < 200 || this.latestResponse.status >= 300
+    );
+  }
+
   async get<R = any>(url: string, params?: IHttpParams): Promise<R> {
     try {
       const r = await this.axios.get<R>(

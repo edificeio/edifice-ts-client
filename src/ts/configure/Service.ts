@@ -1,6 +1,6 @@
 import { configure } from "./Framework";
 import { IGetConf, IOdeTheme, IThemeConf } from "./interfaces";
-import { App } from "../globals";
+import { App, ERROR_CODE } from "../globals";
 import { IWebApp } from "../session/interfaces";
 import { IOdeServices } from "../services/OdeServices";
 
@@ -38,6 +38,7 @@ export class ConfService {
     const publicConfResponse = await this.http.get<any>(`/${app}/conf/public`, {
       queryParams: { _: configure.Platform.deploymentTag },
     });
+    if (this.http.isResponseError()) throw ERROR_CODE.APP_NOT_FOUND;
     return publicConfResponse;
   }
 

@@ -34,6 +34,7 @@ export const APP = {
   WORKSPACE: "workspace",
   // -- a few others commonly used apps
   EXPLORER: "explorer",
+  VIDEO: "video",
 } as const;
 export type App = (typeof APP)[keyof typeof APP] | string; // type App = "admin" | "archive" | "auth"...
 
