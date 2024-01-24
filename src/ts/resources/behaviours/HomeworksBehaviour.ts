@@ -1,22 +1,20 @@
-import { IResource } from "../interface";
 import { AbstractBehaviourService } from "./AbstractBehaviourService";
 
-type NotebookData = {
-  trashed: number;
-  _id: number;
+type HomeworkData = {
+  _id: string;
   title: string;
   thumbnail: string;
-  icon?: string; //FIXME icon field, really ? Or thumbnail or both ?
-  selected: boolean;
-  shared: boolean;
   owner: {
     userId: string;
     displayName: string;
   };
-  //  repeats: Repeat[];
-  //  rights: Rights<Notebook>;
-  data?: /*Day*/ [];
   modified: { $date: number };
+  created: { $date: number };
+  trashed: number;
+  shared?: [];
+  // repeats: [];
+  // entriesModified: { $date: number };
+  // ... probably more, idc
 };
 
 export class HomeworksBehaviour extends AbstractBehaviourService {
@@ -24,14 +22,14 @@ export class HomeworksBehaviour extends AbstractBehaviourService {
   RESOURCE = "homeworks";
 
   async loadResources() {
-    return (await this.httpGet<NotebookData[]>("/homeworks/list"))
-      .filter((homework) => homework.data && homework.trashed === 0)
+    return (await this.httpGet<HomeworkData[]>("/homeworks/list"))
+      .filter((homework) => homework.owner && homework.trashed === 0)
       .map((homework) => {
         return this.dataToResource({
           title: homework.title,
           ownerName: homework.owner.displayName,
           owner: homework.owner.userId,
-          icon: homework.icon || "/img/illustrations/homeworks.svg",
+          icon: homework.thumbnail || "/img/illustrations/homeworks.svg",
           path: "/homeworks#/view-homeworks/" + homework._id,
           _id: "" + homework._id,
           shared: typeof homework.shared !== "undefined",
