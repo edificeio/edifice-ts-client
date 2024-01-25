@@ -59,6 +59,8 @@ export interface IWebResourceService {
   getPrintUrl(resourceId: string, withComment?: boolean): string;
   /** URL where to view a resource. */
   getViewUrl(resourceId: string): string;
+  /** URL where to edit a resource. */
+  getEditUrl(resourceId: string): string;
   /** URL where to create a new resource. */
   getFormUrl(folderId?: string): string;
   /** FIXME doc  */
