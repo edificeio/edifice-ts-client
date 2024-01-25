@@ -82,12 +82,6 @@ export interface ISubjectMessage {
   name: EventName;
   data?: any;
 }
-/** Handler of subject messages. */
-export type ISubjectSubscription<T extends ISubjectMessage> = (
-  message: T,
-) => void;
-/** Used to release an handler of subject messages. */
-export type ISubjectRevokation = () => void;
 
 /** Typing of error messages on the TRANSPORT layer. */
 //-------------------------------------
@@ -100,27 +94,34 @@ export interface IHttpErrorEvent extends ISubjectMessage {
   };
 }
 
+/** A subscription to receive ISubjectMessage */
+//-------------------------------------
+export interface ISubscription {
+  /** Close the subscription */
+  revoke: () => void;
+};
+
 export type TransportLayer = typeof LAYER_NAME.TRANSPORT;
 
-/** Generic typing of a subject. */
+/** + Generic typing of a subject. */
 //-------------------------------------
 export interface ISubject {
+  subscribe(
+    layer: Omit<LayerName, TransportLayer>,
+    handler: <T extends ISubjectMessage>(message: T) => void,
+  ): ISubscription;
   publish(
     layer: Omit<LayerName, TransportLayer>,
     message: ISubjectMessage,
   ): void;
-  subscribe(
-    layer: Omit<LayerName, TransportLayer>,
-    handler: ISubjectSubscription<ISubjectMessage>,
-  ): ISubjectRevokation;
 }
 
-/** Overloaded typing of a subject, dedicated to transport errors. */
+/** + Overloaded typing of a subject, dedicated to transport errors. */
 //-------------------------------------
 export declare interface ISubject {
   publish(layer: TransportLayer, message: IHttpErrorEvent): void;
   subscribe(
     layer: TransportLayer,
-    handler: ISubjectSubscription<IHttpErrorEvent>,
-  ): ISubjectRevokation;
+    handler: (message: IHttpErrorEvent) => void,
+  ): ISubscription;
 }

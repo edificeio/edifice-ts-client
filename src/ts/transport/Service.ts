@@ -18,14 +18,12 @@ export class HttpService implements IHttp {
   private baseUrl?: string;
   private headers: Record<string, string> = {};
   private _latestResponse: any;
-  private channel: BroadcastChannel;
 
   constructor(
     private context: IOdeServices,
     params?: any,
   ) {
     this.axios = axios.create(params);
-    this.channel = notify.events().newChannel(LAYER_NAME.TRANSPORT);
   }
 
   private fixBaseUrl(url: string) {
@@ -174,14 +172,15 @@ export class HttpService implements IHttp {
 
     // Notify errors unless explicitely disabled.
     params?.disableNotifications ||
-      this.channel.postMessage({
+    notify.events().publish(LAYER_NAME.TRANSPORT, {
         name: EVENT_NAME.ERROR_OCCURED,
         data: {
           params,
           response: { status, statusText, headers },
           payload: data,
         },
-      });
+      }
+    );
 
     return data;
   }
