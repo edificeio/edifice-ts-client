@@ -1,4 +1,3 @@
-import { IResource } from "../interface";
 import { AbstractBehaviourService } from "./AbstractBehaviourService";
 
 type MindmapData = {
