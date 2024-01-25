@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         id: pnpm-install
@@ -45,5 +45,5 @@ jobs:
       - run: pnpm run generate-commit-version && pnpm run build
       - run: pnpm -r --workspace-concurrency=1 exec -- npx --no-install semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

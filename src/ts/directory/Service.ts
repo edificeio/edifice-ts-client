@@ -1,4 +1,4 @@
-import { OdeServices } from "../services/OdeServices";
+import { IOdeServices } from "../services/OdeServices";
 import {
   Bookmark,
   BookmarkGetResponse,
@@ -10,7 +10,7 @@ import {
 } from "./interface";
 
 export class DirectoryService {
-  constructor(private odeServices: OdeServices) {}
+  constructor(private odeServices: IOdeServices) {}
   private get http() {
     return this.odeServices.http();
   }
