@@ -40,6 +40,9 @@ export class ScrapbookResourceService extends ResourceService {
   getEditUrl(resourceId: string): string {
     return `/scrapbook#/edit-scrapbook/${resourceId}`;
   }
+  getExportUrl(resourceId: string): string {
+    return `/scrapbook/exportHtml/${resourceId}`;
+  }
 }
 
 ResourceService.register(
