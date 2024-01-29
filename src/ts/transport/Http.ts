@@ -160,6 +160,12 @@ export class Http implements IHttp {
     return this._latestResponse;
   }
 
+  isResponseError(): boolean {
+    return (
+      this.latestResponse.status < 200 || this.latestResponse.status >= 300
+    );
+  }
+
   get<R = any>(url: string, params?: IHttpParams): Promise<R> {
     return this.axios
       .get<R>(this.toCdnUrl(url), this.toAxiosConfig(params))

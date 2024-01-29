@@ -1,5 +1,5 @@
 import { StringUtils } from "../utils/StringUtils";
-import { OdeServices } from "../services/OdeServices";
+import { IOdeServices } from "../services/OdeServices";
 
 import {
   GetResourceRightPayload,
@@ -19,7 +19,7 @@ export class ShareService {
   //
   // IMPLEMENTATION
   //
-  constructor(protected context: OdeServices) {}
+  constructor(protected context: IOdeServices) {}
 
   get directory() {
     return this.context.directory();
@@ -81,6 +81,7 @@ export class ShareService {
           displayName: group.name,
           id: group.id,
           type: "group",
+          structureName: group.structureName,
         } as ShareSubject;
       });
     const bookmarks: Bookmark[] = await this.directory.getBookMarks();

@@ -27,6 +27,9 @@ export interface IHttp {
   /** Latest available HTTP response, valid during your get|post|put...then() and catch() handlers. */
   readonly latestResponse: IHttpResponse;
 
+  /** Check if HTTP status of latestResponse is <200 or >=300 */
+  isResponseError(): boolean;
+
   /** HTTP GET Accept: application/json */
   get<R = any>(url: string, params?: IHttpParams): Promise<R>;
 

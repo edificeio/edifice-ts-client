@@ -107,6 +107,7 @@ export interface ShareSubject {
   avatarUrl: string;
   directoryUrl: string;
   type: "user" | "group" | "sharebookmark";
+  structureName?: string;
 }
 
 export interface ShareRightWithVisibles {

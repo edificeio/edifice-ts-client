@@ -1,12 +1,12 @@
 export interface WorkspaceElement {
   _id?: string;
-  eType: string;
+  eType: "folder" | "file" | string;
   eParent: string;
   name: string;
   title?: string;
   file?: string;
   deleted?: boolean;
-  children: Element[];
+  children: WorkspaceElement[];
   created: Date;
   trasher?: string;
   externalId?: string;
@@ -48,4 +48,30 @@ export interface WorkspaceElement {
   //visibility
   protected?: boolean;
   public?: boolean;
+  /**
+   * Get multimedia thumbnails
+   * */
+  thumbnails?: { [thumbSize: string]: string };
 }
+
+/** Supported view preferences */
+export type WorkspacePreferenceView = "list" | "icons" | "carousel";
+
+/** Workspace preferences */
+export interface WorkspacePreference {
+  sortField?: string;
+  sortDesc?: boolean;
+  view?: WorkspacePreferenceView;
+  bbmView?: WorkspacePreferenceView;
+  quickstart?: "viewed" | "notviewed";
+}
+
+/** Supported search filters */
+export type WorkspaceSearchFilter =
+  | "owner"
+  | "shared"
+  | "protected"
+  | "public"
+  | "trash"
+  | "all"
+  | "external";

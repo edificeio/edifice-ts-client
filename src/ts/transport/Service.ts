@@ -5,12 +5,14 @@ import axios, {
   AxiosResponse,
 } from "axios";
 import { ERROR_CODE } from "../globals";
-import { IHttpResponse, IHttpParams } from "./interfaces";
-import { OdeServices } from "../services/OdeServices";
+import { IHttpResponse, IHttpParams, IHttp } from "./interfaces";
+import { IOdeServices } from "../services/OdeServices";
+import { notify } from "../notify/Framework";
+import { EVENT_NAME, LAYER_NAME } from "../notify/interfaces";
 
 const loadedScripts: { [url: string]: boolean } = {};
 
-export class HttpService {
+export class HttpService implements IHttp {
   // Axios automatically manages the XSRF-TOKEN cookie and the X-XSRF-TOKEN HTTP header.
   private axios: AxiosInstance;
   private baseUrl?: string;
@@ -18,7 +20,7 @@ export class HttpService {
   private _latestResponse: any;
 
   constructor(
-    private context: OdeServices,
+    private context: IOdeServices,
     params?: any,
   ) {
     this.axios = axios.create(params);
@@ -139,7 +141,7 @@ export class HttpService {
   }
 
   private mapAxiosError<R>(error: AxiosError<R>, params?: IHttpParams): R {
-    console.error("[HttpService]", error);
+    //console.error("[HttpService]", error);
     // AxiosError.response and our HttpResponse share the same properties.
     // So we can use it directly, saving CPU and memory.
     // Otherwise, we would map the axios response to our own model.
@@ -165,13 +167,22 @@ export class HttpService {
 
     /* TODO : manage params.requestName through an events[]. See infra-front http.ts */
 
-    // Notify error unless disabled.
-    if (!params || params.disableNotifications === false) {
-      // FIXME This really should be an rxjs Subject
-      // notify.onEvent( EVENT_NAME.HTTP_ERROR ).next( new HttpErrorNotice(''+this._latestResponse.status, this._latestResponse.statusText) );
-    }
+    const { status, statusText, headers, data } = this
+      ._latestResponse as AxiosResponse;
 
-    return this._latestResponse;
+    // Notify errors unless explicitely disabled.
+    params?.disableNotifications ||
+    notify.events().publish(LAYER_NAME.TRANSPORT, {
+        name: EVENT_NAME.ERROR_OCCURED,
+        data: {
+          params,
+          response: { status, statusText, headers },
+          payload: data,
+        },
+      }
+    );
+
+    return data;
   }
 
   private mapAxiosResponse<R>(
@@ -189,6 +200,12 @@ export class HttpService {
 
   get latestResponse(): IHttpResponse {
     return this._latestResponse;
+  }
+
+  isResponseError(): boolean {
+    return (
+      this.latestResponse.status < 200 || this.latestResponse.status >= 300
+    );
   }
 
   async get<R = any>(url: string, params?: IHttpParams): Promise<R> {
