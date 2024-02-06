@@ -13,6 +13,13 @@ export interface ShareRight {
   groups?: Group[]; // bookmark groups
 }
 
+//--------------------------------------- SHARE
+
+export interface ShareParameters {
+  id: string;
+  rights: ShareRight[];
+}
+
 /**
  * Type of share right
  * */
