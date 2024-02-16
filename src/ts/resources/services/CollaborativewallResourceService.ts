@@ -12,10 +12,12 @@ const RESOURCE = "collaborativewall";
 
 export class CollaborativewallResourceService extends ResourceService {
   async create(parameters: CreateParameters): Promise<CreateResult> {
+    const thumbnail = await this.getThumbnailPath(parameters.thumbnail);
     const res = await this.http.post<CreateResult>(`/collaborativewall`, {
       name: parameters.name,
       description: parameters.description,
       background: "/collaborativewall/public/img/default.jpg",
+      icon: thumbnail,
     });
 
     this.checkHttpResponse(res);
@@ -24,7 +26,7 @@ export class CollaborativewallResourceService extends ResourceService {
   }
 
   async update(parameters: CollaborativewallUpdate): Promise<UpdateResult> {
-    //const fixThumb = await this.getThumbnailPath(parameters.thumbnail);
+    const thumbnail = await this.getThumbnailPath(parameters.thumbnail);
     const res = await this.http.put<IResource>(
       `/collaborativewall/${parameters.entId}`,
       {
@@ -32,10 +34,11 @@ export class CollaborativewallResourceService extends ResourceService {
         name: parameters.name,
         description: parameters.description,
         background: "/collaborativewall/public/img/default.jpg",
+        icon: thumbnail,
       },
     );
     this.checkHttpResponse(res);
-    return { entId: parameters.entId } as UpdateResult;
+    return { thumbnail, entId: parameters.entId } as UpdateResult;
   }
   getResourceType(): ResourceType {
     return RESOURCE;
