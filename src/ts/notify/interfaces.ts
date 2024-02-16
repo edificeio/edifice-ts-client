@@ -99,7 +99,7 @@ export interface IHttpErrorEvent extends ISubjectMessage {
 export interface ISubscription {
   /** Close the subscription */
   revoke: () => void;
-};
+}
 
 export type TransportLayer = typeof LAYER_NAME.TRANSPORT;
 

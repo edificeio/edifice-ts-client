@@ -172,15 +172,14 @@ export class HttpService implements IHttp {
 
     // Notify errors unless explicitely disabled.
     params?.disableNotifications ||
-    notify.events().publish(LAYER_NAME.TRANSPORT, {
+      notify.events().publish(LAYER_NAME.TRANSPORT, {
         name: EVENT_NAME.ERROR_OCCURED,
         data: {
           params,
           response: { status, statusText, headers },
           payload: data,
         },
-      }
-    );
+      });
 
     return data;
   }

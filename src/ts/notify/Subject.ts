@@ -10,21 +10,28 @@ type RevokationFunction = () => void;
 
 class Subscription<T extends ISubjectMessage> implements ISubscription {
   public revoke: RevokationFunction;
-  
-  constructor( private _channel?:BroadcastChannel, handler?: (message: T) => void ) {
-    this.revoke = this.setReceiver( (message: MessageEvent<T>) => handler?.(message.data) );
+
+  constructor(
+    private _channel?: BroadcastChannel,
+    handler?: (message: T) => void,
+  ) {
+    this.revoke = this.setReceiver((message: MessageEvent<T>) =>
+      handler?.(message.data),
+    );
   }
 
-  private setReceiver( receiver: (message: MessageEvent<T>) => void ): RevokationFunction {
+  private setReceiver(
+    receiver: (message: MessageEvent<T>) => void,
+  ): RevokationFunction {
     this._channel?.addEventListener("message", receiver);
     return () => {
-      if( this._channel ) {
+      if (this._channel) {
         this._channel.removeEventListener("message", receiver);
         // Close channel, then delete it since it is unusable.
         this._channel.close();
         delete this._channel;
-      };
-    }
+      }
+    };
   }
 }
 
@@ -33,7 +40,7 @@ class Subscription<T extends ISubjectMessage> implements ISubscription {
 //-------------------------------------
 export class Subject implements ISubject {
   /* A single BroadcastChannel cannot send AND receive messages, afaik.
-   * => We maintain here channels for *sending* messages. 
+   * => We maintain here channels for *sending* messages.
    * *Receiving* channels will be instantiated while subscribing.
    */
   private publishChannels: Map<string, BroadcastChannel> = new Map<
@@ -63,7 +70,8 @@ export class Subject implements ISubject {
   }
 
   publish(layer: LayerName, message: ISubjectMessage | IHttpErrorEvent): void {
-    typeof layer === "string" && this.getPublishChannel(layer).postMessage(message);
+    typeof layer === "string" &&
+      this.getPublishChannel(layer).postMessage(message);
   }
 
   subscribe<T extends ISubjectMessage>(
