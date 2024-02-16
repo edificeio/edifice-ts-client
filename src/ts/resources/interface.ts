@@ -430,6 +430,14 @@ export interface MindmapResource extends IResource {
   "publish-type": "RESTRAINT" | "IMMEDIATE";
 }
 
+export interface CollaborativewallUpdate extends UpdateParameters {
+  "publish-type"?: "RESTRAINT" | "IMMEDIATE";
+}
+
+export interface CollaborativewallResource extends IResource {
+  "publish-type": "RESTRAINT" | "IMMEDIATE";
+}
+
 export interface ScrapbookUpdate extends UpdateParameters {}
 
 export interface ScrapbookResource extends IResource {}

@@ -37,6 +37,7 @@ export const APP = {
   VIDEO: "video",
   MINDMAP: "mindmap",
   SCRAPBOOK: "scrapbook",
+  COLLABORATIVEWALL: "collaborativewall",
 
   // TODO compléter/trier les apps suivantes
   /*
