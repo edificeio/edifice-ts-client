@@ -79,8 +79,8 @@ export abstract class AbstractBehaviourService implements IResourceService {
       typeof modified === "string"
         ? modified
         : modified?.$date
-        ? "" + modified.$date
-        : "";
+          ? "" + modified.$date
+          : "";
     return {
       application: this.RESOURCE,
       name: resource.title,
