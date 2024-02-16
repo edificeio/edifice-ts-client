@@ -155,8 +155,9 @@ export class ShareService {
     const visibleBookmarks = await this.directory.getBookMarks();
     // get rights for this ressources
     const url = this.context.resource(app, app).getShareReadUrl(resourceId);
-    const rightsPayload =
-      await this.cache.httpGetJson<GetResourceRightPayload>(url);
+    const rightsPayload = await this.cache.httpGetJson<GetResourceRightPayload>(
+      url,
+    );
     // get mapping between rights and normalized rights
     const sharingMap = await this.getShareMapping(app);
     // get normalized rights infos
