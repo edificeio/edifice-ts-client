@@ -7,18 +7,18 @@ const RESOURCE = "scrapbook";
 
 export class ScrapbookResourceService extends ResourceService {
   async update(parameters: ScrapbookUpdate): Promise<UpdateResult> {
-    const fixThumb = await this.getThumbnailPath(parameters.thumbnail);
+    const thumbnail = await this.getThumbnailPath(parameters.thumbnail);
     const res = await this.http.put<IResource>(
       `/scrapbook/${parameters.entId}`,
       {
         trashed: parameters.trashed ? 1 : 0,
         title: parameters.name,
-        icon: fixThumb,
+        icon: thumbnail,
         subTitle: parameters.description,
       },
     );
     this.checkHttpResponse(res);
-    return { thumbnail: fixThumb, entId: parameters.entId } as UpdateResult;
+    return { thumbnail: thumbnail, entId: parameters.entId } as UpdateResult;
   }
   getResourceType(): ResourceType {
     return RESOURCE;
