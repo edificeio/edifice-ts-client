@@ -17,6 +17,8 @@ import {
 } from "..";
 import { IOdeServices } from "../services/OdeServices";
 import {
+  CopyParameters,
+  CopyResult,
   CreateParameters,
   CreateResult,
   IResourceService,
@@ -134,6 +136,14 @@ export abstract class ResourceService
   }
   getSaveShareUrl(id: string) {
     return `/${this.getApplication()}/share/resource/${id}`;
+  }
+
+  async copy(parameters: CopyParameters): Promise<CopyResult> {
+    const res = await this.http.post<CopyResult>("/archive/duplicate", {
+      application: parameters.application,
+      resourceId: parameters.resourceId,
+    });
+    return this.checkHttpResponse(res);
   }
 
   async publish(parameters: PublishParameters): Promise<PublishResult> {
