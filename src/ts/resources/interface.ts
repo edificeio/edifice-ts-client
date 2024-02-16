@@ -15,6 +15,8 @@ export interface IResourceService {
   create<T extends CreateParameters>(parameters: T): Promise<CreateResult>;
   /** Update an existing resource from common parameters. */
   update<T extends UpdateParameters>(parameters: T): Promise<UpdateResult>;
+  /** Copy a resource from common parameters. */
+  copy<T extends CopyParameters>(parameters: T): Promise<CopyResult>;
   /** Publish an resource */
   publish(parameters: PublishParameters): Promise<PublishResult>;
   /** Delete folders and/or resources. */
@@ -277,6 +279,17 @@ export interface CreateResult {
   modified?: { $date: string };
   author?: { userId: string; username: string; login: string };
   shared?: Array<string>;
+}
+
+//--------------------------------------- COPY
+/** Parameters expected to copy a resource. */
+export interface CopyParameters extends IActionParameters {
+  resourceId: ID;
+}
+/** Response when copying a resource. */
+export interface CopyResult extends IActionResult {
+  duplicateId: ID;
+  message: string;
 }
 
 //--------------------------------------- PUBLISH
