@@ -38,6 +38,7 @@ export interface IResourceService {
   createContext(parameters: GetContextParameters): Promise<GetContextResult>;
   /** Search / paginate within a search context. */
   searchContext(parameters: GetContextParameters): Promise<ISearchResults>;
+  searchResource(parameters: GetResourceParameters): Promise<IResource>;
 
   //--------------------------------------- FOLDERS MANAGEMENT
   /** Create a new folder. */
@@ -326,6 +327,8 @@ export interface ISearchParameters {
   id?: number;
   asset_id?: string[];
 }
+export type IResourceParameters = Pick<ISearchParameters, "id">;
+
 export interface ISearchResults {
   folders: IFolder[];
   pagination: IPagination;
@@ -393,6 +396,7 @@ export interface TrashParameters extends DeleteParameters {
 }
 
 /* TODO resources ? */
+export type GetResourceParameters = IActionParameters & IResourceParameters;
 export type GetResourcesParameters = IActionParameters & ISearchParameters;
 export type GetResourcesResult = IActionResult & ISearchResults;
 
