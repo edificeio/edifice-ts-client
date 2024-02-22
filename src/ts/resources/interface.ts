@@ -327,7 +327,9 @@ export interface ISearchParameters {
   id?: number;
   asset_id?: string[];
 }
-export type IResourceParameters = Pick<ISearchParameters, "id">;
+export interface IResourceParameters {
+  id: string;
+}
 
 export interface ISearchResults {
   folders: IFolder[];
