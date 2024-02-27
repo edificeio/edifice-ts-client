@@ -2,13 +2,13 @@
   "name": "edifice-ts-client",
   "version": "1.0.0",
   "description": "Edifice TypeScript Client",
-  "homepage": "https://github.com/opendigitaleducation/edifice-ts-client#readme",
+  "homepage": "https://github.com/edificeio/edifice-ts-client#readme",
   "bugs": {
-    "url": "https://github.com/opendigitaleducation/edifice-ts-client/issues"
+    "url": "https://github.com/edificeio/edifice-ts-client/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/opendigitaleducation/edifice-ts-client.git"
+    "url": "https://github.com/edificeio/edifice-ts-client.git"
   },
   "license": "AGPL-3.0",
   "author": "Edifice",
