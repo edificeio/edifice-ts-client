@@ -21,6 +21,8 @@ import {
   CopyResult,
   CreateParameters,
   CreateResult,
+  GetResourceParameters,
+  IResource,
   IResourceService,
   IWebResourceService,
   UpdateParameters,
@@ -222,6 +224,16 @@ export abstract class ResourceService
     return this.checkHttpResponse(result);
   }
 
+  async searchResource(parameters: GetResourceParameters): Promise<IResource> {
+    const result = await this.http.get<IResource>(
+      `/explorer/resources/${parameters.id}`,
+      {
+        queryParams: this.getResourceParams(parameters),
+      },
+    );
+    return this.checkHttpResponse(result);
+  }
+
   async createFolder(
     parameters: CreateFolderParameters,
   ): Promise<CreateFolderResult> {
@@ -409,6 +421,13 @@ export abstract class ResourceService
     }
     return ret;
   }
+
+  private getResourceParams(parameters: GetResourceParameters) {
+    return {
+      application: parameters.application,
+    };
+  }
+
   private createFolderToBodyParams(parameters: CreateFolderParameters) {
     return {
       application: parameters.application,
@@ -417,6 +436,7 @@ export abstract class ResourceService
       name: parameters.name,
     };
   }
+
   private moveToBodyParams(parameters: MoveParameters) {
     return {
       application: parameters.application,

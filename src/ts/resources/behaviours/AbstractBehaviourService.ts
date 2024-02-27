@@ -3,6 +3,7 @@ import { CacheService } from "../../cache/Service";
 import { IOdeServices } from "../../services/OdeServices";
 import {
   GetContextParameters,
+  GetResourceParameters,
   IResource,
   IResourceService,
   ISearchResults,
@@ -48,6 +49,10 @@ export abstract class AbstractBehaviourService implements IResourceService {
   //
   constructor(protected context: IOdeServices) {
     this._cache = new CacheService(this.context);
+  }
+
+  searchResource(parameters: GetResourceParameters): Promise<IResource> {
+    throw new Error("Method not implemented.");
   }
 
   async searchContext(
