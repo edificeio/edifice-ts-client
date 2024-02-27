@@ -105,7 +105,9 @@ export interface IResource {
 export const ACTION = {
   SEARCH: "search",
   CREATE: "create",
+  CREATE_PUBLIC: "createPublic",
   OPEN: "open",
+  EDIT: "edit",
   MANAGE: "manage", // Query properties metadata
   UPD_PROPS: "properties", // Update properties
   COMMENT: "comment",
@@ -195,7 +197,7 @@ export interface IAction {
   workflow: string;
   /** Thruthy if the user owns the corresponding right. */
   available: boolean;
-  target?: "actionbar";
+  target?: "actionbar" | "tree";
   right?: RightRole;
   //FIXME comment relier les actions aux behaviours, qu'on va remplacer.
 }
