@@ -116,7 +116,7 @@ export abstract class ResourceService
   //
   abstract getApplication(): App | string;
 
-  abstract getPrintUrl(resourceId: string, withComment?: boolean): string;
+  abstract getPrintUrl(resourceId: string): string;
 
   abstract getViewUrl(resourceId: string): string;
 

@@ -58,8 +58,8 @@ export interface IResourceService {
 
 /** FIXME */
 export interface IWebResourceService {
-  /** URL where to print a resource, with an optional comment. */
-  getPrintUrl(resourceId: string, withComment?: boolean): string;
+  /** URL where to print a resource. */
+  getPrintUrl(resourceId: string): string;
   /** URL where to view a resource. */
   getViewUrl(resourceId: string): string;
   /** URL where to edit a resource. */

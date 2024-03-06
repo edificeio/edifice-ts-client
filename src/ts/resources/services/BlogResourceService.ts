@@ -67,10 +67,8 @@ export class BlogResourceService extends ResourceService {
   getViewUrl(resourceId: string): string {
     return `/blog#/view/${resourceId}`;
   }
-  getPrintUrl(resourceId: string, withComment?: boolean): string {
-    return `/blog/print/blog#/print/${resourceId}?comments=${
-      withComment || true
-    }`;
+  getPrintUrl(resourceId: string): string {
+    return `/blog/print/blog#/print/${resourceId}`;
   }
 }
 ResourceService.register(

@@ -54,10 +54,8 @@ export class CollaborativewallResourceService extends ResourceService {
   getViewUrl(resourceId: string): string {
     return `/collaborativewall/id/${resourceId}`;
   }
-  getPrintUrl(resourceId: string, withComment?: boolean): string {
-    return `/collaborativewall/print/id/${resourceId}?comments=${
-      withComment || true
-    }`;
+  getPrintUrl(resourceId: string): string {
+    return `/collaborativewall/print/id/${resourceId}`;
   }
 }
 ResourceService.register(
