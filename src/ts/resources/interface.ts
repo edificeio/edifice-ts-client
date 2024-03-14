@@ -15,6 +15,8 @@ export interface IResourceService {
   create<T extends CreateParameters>(parameters: T): Promise<CreateResult>;
   /** Update an existing resource from common parameters. */
   update<T extends UpdateParameters>(parameters: T): Promise<UpdateResult>;
+  /** Copy a resource from common parameters. */
+  copy<T extends CopyParameters>(parameters: T): Promise<CopyResult>;
   /** Publish an resource */
   publish(parameters: PublishParameters): Promise<PublishResult>;
   /** Delete folders and/or resources. */
@@ -56,10 +58,12 @@ export interface IResourceService {
 
 /** FIXME */
 export interface IWebResourceService {
-  /** URL where to print a resource, with an optional comment. */
-  getPrintUrl(resourceId: string, withComment?: boolean): string;
+  /** URL where to print a resource. */
+  getPrintUrl(resourceId: string): string;
   /** URL where to view a resource. */
   getViewUrl(resourceId: string): string;
+  /** URL where to edit a resource. */
+  getEditUrl(resourceId: string): string;
   /** URL where to create a new resource. */
   getFormUrl(folderId?: string): string;
   /** FIXME doc  */
@@ -280,6 +284,17 @@ export interface CreateResult {
   shared?: Array<string>;
 }
 
+//--------------------------------------- COPY
+/** Parameters expected to copy a resource. */
+export interface CopyParameters extends IActionParameters {
+  resourceId: ID;
+}
+/** Response when copying a resource. */
+export interface CopyResult extends IActionResult {
+  duplicateId: ID;
+  message: string;
+}
+
 //--------------------------------------- PUBLISH
 /** Parameters expected to publish a resource */
 export interface PublishParameters extends IActionParameters {
@@ -435,3 +450,15 @@ export interface MindmapUpdate extends UpdateParameters {
 export interface MindmapResource extends IResource {
   "publish-type": "RESTRAINT" | "IMMEDIATE";
 }
+
+export interface CollaborativewallUpdate extends UpdateParameters {
+  "publish-type"?: "RESTRAINT" | "IMMEDIATE";
+}
+
+export interface CollaborativewallResource extends IResource {
+  "publish-type": "RESTRAINT" | "IMMEDIATE";
+}
+
+export interface ScrapbookUpdate extends UpdateParameters {}
+
+export interface ScrapbookResource extends IResource {}

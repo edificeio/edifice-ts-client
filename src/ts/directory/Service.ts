@@ -94,9 +94,8 @@ export class DirectoryService {
     });
     const bookmarkDetailPromises = bookmarks.map(async (bookmark) => {
       if (typeof bookmark === "string") {
-        const { displayName, groups, id, users } = await this.getBookMarkById(
-          bookmark,
-        );
+        const { displayName, groups, id, users } =
+          await this.getBookMarkById(bookmark);
         const usersId = users.map((user) => user.id);
         const groupId = groups.map((user) => user.id);
         const tmp: BookmarkWithMembers = {

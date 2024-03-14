@@ -1,6 +1,8 @@
 // TODO should be loaded from app in future
 import "../resources/services/BlogResourceService";
 import "../resources/services/MindmapResourceService";
+import "../resources/services/ScrapbookResourceService";
+import "../resources/services/CollaborativewallResourceService";
 
 import { IOdeServices, OdeServices } from "./OdeServices";
 

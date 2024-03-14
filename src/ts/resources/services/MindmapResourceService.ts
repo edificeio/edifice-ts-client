@@ -58,8 +58,8 @@ export class MindmapResourceService extends ResourceService {
   getViewUrl(resourceId: string): string {
     return `/mindmap/id/${resourceId}`;
   }
-  getPrintUrl(resourceId: string, withComment?: boolean): string {
-    return `/mindmap/print/id/${resourceId}?comments=${withComment || true}`;
+  getPrintUrl(resourceId: string): string {
+    return `/mindmap/print/id/${resourceId}`;
   }
 }
 ResourceService.register(

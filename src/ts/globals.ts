@@ -35,6 +35,60 @@ export const APP = {
   // -- a few others commonly used apps
   EXPLORER: "explorer",
   VIDEO: "video",
+  MINDMAP: "mindmap",
+  SCRAPBOOK: "scrapbook",
+  COLLABORATIVEWALL: "collaborativewall",
+
+  // TODO compléter/trier les apps suivantes
+  /*
+  "competences"
+  "cahier-textes"
+  "poll"
+  "rack"
+  "rbs"
+  "searchengine"
+  "sharebigfiles"
+  "schoolbook"
+  "archive"
+  "admin"
+  "cahier-de-texte"
+  "wiki"
+  "cns"
+  "conversation"
+  "paths"
+  "parcours"
+  "notebook"
+  "account"
+  "support"
+  "workspace"
+  "admin-portal"
+  "stats"
+  "userbook"    // FIXME userbook OR directory : the choice may impact some configurations, @see IXitiTrackingParams.NOM_PAGE for example
+  "directory"   // FIXME Keep in mind that ode-ts-client MUST not access the locationPath of the window !
+  "mindmap"
+  "timelinegenerator"
+  "actualites"
+  "pad"
+  "collaborativeeditor"
+  "settings-class"
+  "library"
+  "visioconf"
+  "Web-conference"
+  "notes"
+  "attendance"
+  "calendar"
+  "canal-numerique"
+  "collaborative-wall"
+  "statistics"
+  "polls"
+  "community"
+  "forum"
+  "pages"
+  "website"
+  "parametrage"
+  "kne"
+  "sacoche"
+*/
 } as const;
 export type App = (typeof APP)[keyof typeof APP] | string; // type App = "admin" | "archive" | "auth"...
 
