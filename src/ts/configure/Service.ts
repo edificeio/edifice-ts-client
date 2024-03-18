@@ -22,12 +22,12 @@ export class ConfService {
     ]);
 
     const [theme, currentApp] = await Promise.all([
-      this.getTheme({ conf }),
-      this.getWebAppConf({ app, applications }),
+      this.getTheme({ conf, publicTheme: applications === undefined }),
+      this.getWebAppConf({ app, applications: applications ?? [] }),
     ]);
 
     return {
-      applications,
+      applications: applications ?? [],
       conf,
       currentApp,
       theme,
@@ -56,6 +56,9 @@ export class ConfService {
     const res = await this.http.get<{ preference: string }>(
       `/userbook/preference/${key}`,
     );
+    if (this.http.isResponseError()) {
+      return {} as T;
+    }
     return JSON.parse(res.preference) as T;
   }
 
@@ -68,10 +71,13 @@ export class ConfService {
     return res;
   }
 
-  private async getApplicationsList(): Promise<IWebApp[]> {
+  private async getApplicationsList(): Promise<IWebApp[] | undefined> {
     const response = await this.http.get<{ apps: Array<IWebApp> }>(
       `/applications-list`,
     );
+    if (this.http.isResponseError()) {
+      return undefined;
+    }
     return response.apps;
   }
 
@@ -93,38 +99,44 @@ export class ConfService {
   private async getTheme({
     version,
     conf,
+    publicTheme,
   }: {
     version?: string;
     conf: any;
+    publicTheme?: boolean;
   }): Promise<IOdeTheme> {
-    const theme = await this.http.get<IOdeTheme>("/theme", {
-      queryParams: { _: version },
-    });
-    const skin = theme.themeName;
-    const skins = conf?.overriding.find(
-      (item: { child: any }) => item.child === skin,
-    ).skins;
-    const bootstrapPath = "/assets/themes/edifice-bootstrap";
-    const bootstrapVersion = conf?.overriding
-      .find((item: { child: any }) => item.child === skin)
-      .bootstrapVersion.split("-")
-      .slice(-1)[0];
+    const theme = !publicTheme
+      ? await this.http.get<IOdeTheme>("/theme", {
+          queryParams: { _: version },
+        })
+      : null;
+    const themeOverride = conf?.overriding.find(
+      (item: { child: any }) =>
+        // Public access => simply use the 1st override
+        theme === null || item.child === theme.themeName,
+    );
 
-    const is1d =
-      conf?.overriding.find((item: { child: any }) => item.child === skin)
-        .parent === "panda";
+    const skinName = theme?.skinName || themeOverride.skins[0];
+    const themeUrl =
+      theme?.skin || `/assets/themes/${themeOverride.child}/skins/${skinName}/`;
+    const skins = themeOverride.skins;
+    const bootstrapPath = "/assets/themes/edifice-bootstrap";
+    const bootstrapVersion = themeOverride.bootstrapVersion
+      .split("-")
+      .slice(-1)[0];
+    const is1d = themeOverride.parent === "panda";
 
     return {
-      basePath: `${this.cdnDomain}${theme.skin}../../`,
+      basePath: `${this.cdnDomain}${themeUrl}../../`,
       bootstrapPath,
       bootstrapVersion,
       is1d,
-      logoutCallback: theme.logoutCallback,
-      skin: theme.skin.split("/assets/themes/")[1].split("/")[0],
-      skinName: theme.skinName,
+      logoutCallback: theme?.logoutCallback || "",
+      skin: themeOverride.child,
+      skinName,
       skins,
-      themeName: theme.themeName,
-      themeUrl: theme.skin,
+      themeName: themeOverride.child,
+      themeUrl,
     };
   }
 }

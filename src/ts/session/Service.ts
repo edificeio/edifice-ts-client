@@ -101,6 +101,9 @@ export class SessionService {
   async latestQuotaAndUsage(
     user: IUserInfo | undefined,
   ): Promise<IQuotaAndUsage> {
+    const defaultQuota = { quota: 0, storage: 0 };
+    if (!user) return defaultQuota;
+
     try {
       const infos = await this.http.get<IQuotaAndUsage>(
         `/workspace/quota/user/${user?.userId}`,
@@ -108,7 +111,7 @@ export class SessionService {
       return infos;
     } catch (error) {
       console.error(error);
-      return { quota: 0, storage: 0 };
+      return defaultQuota;
     }
   }
 
@@ -159,7 +162,7 @@ export class SessionService {
     );
     if (response.status < 200 || response.status >= 300) {
       // Backend tries to redirect the user => not logged in !
-      throw ERROR_CODE.NOT_LOGGED_IN;
+      return;
     } else {
       return value;
     }
@@ -182,7 +185,9 @@ export class SessionService {
 
   private async loadDescription(
     user: IUserInfo | undefined,
-  ): Promise<IUserDescription> {
+  ): Promise<Partial<IUserDescription>> {
+    if (!user) return {};
+
     try {
       const [data, userbook] = await Promise.all([
         // FIXME The full user's description should be obtainable from a single endpoint in the backend.
@@ -195,11 +200,14 @@ export class SessionService {
       return { ...data, ...userbook };
     } catch (error) {
       console.error(error);
-      return {} as unknown as IUserDescription;
+      return {};
     }
   }
 
   private async getBookmarks(user: IUserInfo | undefined) {
+    // Not logged-in users have no bookmarks.
+    if (!user) return [];
+
     const data = await this.http.get("/userbook/preference/apps");
 
     if (!data.preference) {
@@ -242,7 +250,7 @@ export class SessionService {
     );
     if (response.status < 200 || response.status >= 300) {
       // Backend tries to redirect the user => not logged in !
-      throw ERROR_CODE.NOT_LOGGED_IN;
+      return ["Guest"];
     } else {
       return value.result[0].type;
     }

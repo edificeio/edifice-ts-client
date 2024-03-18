@@ -328,10 +328,10 @@ export interface IMfaCodeState {
 }
 
 export interface IGetSession {
-  user: IUserInfo | undefined;
-  currentLanguage: string | undefined;
+  user?: IUserInfo;
+  currentLanguage?: string;
   quotaAndUsage: IQuotaAndUsage;
-  userDescription: IUserDescription;
+  userDescription: Partial<IUserDescription>;
   userProfile?: UserProfile;
   bookmarkedApps: IWebApp[];
 }
