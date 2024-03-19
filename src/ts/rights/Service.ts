@@ -117,7 +117,7 @@ export class RightService {
         )
       );
     } catch (e) {
-      console.error(e);
+      console.error(`Unexpected error ${e} in sessionHasResourceRight()`);
       return false;
     }
   }
@@ -215,7 +215,7 @@ export class RightService {
         )
       );
     } catch (e) {
-      console.error(e);
+      console.error(`Unexpected error ${e} in sessionHasWorkflowRight()`);
       return false;
     }
   }
@@ -241,7 +241,7 @@ export class RightService {
           );
       }
     } catch (e) {
-      console.error(e);
+      console.error(`Unexpected error ${e} in sessionHasWorkflowRights()`);
       for (const expect of expects) {
         result[expect] = false;
       }
