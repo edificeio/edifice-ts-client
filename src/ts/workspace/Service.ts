@@ -199,10 +199,25 @@ export class WorkspaceService {
     return this.fetchDocuments({ filter, parentId, includeall: true });
   }
 
-  getThumbnailUrl(doc: WorkspaceElement) {
-    const thumbnails = doc.thumbnails;
-    return thumbnails
-      ? `/workspace/document/${doc._id}?thumbnail=${Object.keys(thumbnails)[0]}`
-      : `/workspace/document/${doc._id}`;
+  getThumbnailUrl(
+    doc: WorkspaceElement | string,
+    width: number = 0,
+    height: number = 0,
+  ) {
+    if (typeof doc === "string") {
+      if (doc.includes("data:image") || doc.includes("thumbnail")) {
+        return doc;
+      }
+      return (
+        doc +
+        (doc.includes("?") ? "&thumbnail=" : "?thumbnail=") +
+        `${width}x${height}`
+      );
+    } else {
+      const thumbnails = doc.thumbnails;
+      return thumbnails
+        ? `/workspace/document/${doc._id}?thumbnail=${Object.keys(thumbnails)[0]}`
+        : `/workspace/document/${doc._id}`;
+    }
   }
 }
