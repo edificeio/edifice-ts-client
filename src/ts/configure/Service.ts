@@ -56,7 +56,8 @@ export class ConfService {
     const res = await this.http.get<{ preference: string }>(
       `/userbook/preference/${key}`,
     );
-    if (this.http.isResponseError()) {
+    if (this.http.isResponseError() || typeof res === "string") {
+      // This is not a JSON object => not logged in !
       return {} as T;
     }
     return JSON.parse(res.preference) as T;
@@ -75,7 +76,8 @@ export class ConfService {
     const response = await this.http.get<{ apps: Array<IWebApp> }>(
       `/applications-list`,
     );
-    if (this.http.isResponseError()) {
+    if (this.http.isResponseError() || typeof response === "string") {
+      // This is not a JSON object => not logged in !
       return undefined;
     }
     return response.apps;

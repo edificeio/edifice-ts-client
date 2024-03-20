@@ -163,9 +163,12 @@ export class SessionService {
     if (response.status < 200 || response.status >= 300) {
       // Backend tries to redirect the user => not logged in !
       return;
-    } else {
-      return value;
     }
+    if (typeof value === "string") {
+      // This is not a JSON object => not logged in !
+      return;
+    }
+    return value;
   }
 
   hasWorkflow({
@@ -248,7 +251,11 @@ export class SessionService {
       "/userbook/api/person",
       options,
     );
-    if (response.status < 200 || response.status >= 300) {
+    if (
+      response.status < 200 ||
+      response.status >= 300 ||
+      typeof value === "string"
+    ) {
       // Backend tries to redirect the user => not logged in !
       return ["Guest"];
     }
