@@ -251,9 +251,8 @@ export class SessionService {
     if (response.status < 200 || response.status >= 300) {
       // Backend tries to redirect the user => not logged in !
       return ["Guest"];
-    } else {
-      return value.result[0].type;
     }
+    return value?.result?.[0]?.type || ["Guest"];
   }
 
   public async isAdml(): Promise<boolean> {
