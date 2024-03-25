@@ -8,10 +8,10 @@ import { IOdeServices, OdeServices } from "./OdeServices";
 
 export const odeServices: IOdeServices = new OdeServices();
 
-export * from "./SnipletsService";
+export type { ILinkedResource } from "../resources/behaviours/AbstractBehaviourService"; // FIXME to be removed when dropping behaviours
+export * from "../resources/SnipletsService"; // FIXME to be removed when dropping behaviours
 export * from "../directory/interface";
 export * from "../resources/interface";
-export type { ILinkedResource } from "../resources/behaviours/AbstractBehaviourService"; // FIXME to be removed when dropping behaviours
 export * from "../rights/interface";
 export * from "../share/interface";
 export * from "../workspace/interface";

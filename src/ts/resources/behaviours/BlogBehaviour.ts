@@ -1,5 +1,7 @@
-import { IResource } from "../interface";
-import { AbstractBehaviourService } from "./AbstractBehaviourService";
+import {
+  AbstractBehaviourService,
+  ILinkedResource,
+} from "./AbstractBehaviourService";
 
 type MongoDate = {
   $date: number;
@@ -29,10 +31,10 @@ export class BlogBehaviour extends AbstractBehaviourService {
   RESOURCE = "blog";
 
   loadResources() {
-    return new Promise<IResource[]>(async (resolve, reject) => {
+    return new Promise<ILinkedResource[]>(async (resolve, reject) => {
       try {
         const datas = await this.httpGet<BlogData[]>("/blog/linker");
-        const resources: IResource[] = [];
+        const resources: ILinkedResource[] = [];
         datas.forEach((data) => {
           if (data.thumbnail) {
             data.thumbnail = data.thumbnail + "?thumbnail=48x48";
@@ -45,9 +47,9 @@ export class BlogBehaviour extends AbstractBehaviourService {
               owner: data.author.userId,
               ownerName: data.author.username,
               title: post.title + " [" + data.title + "]",
-              _id: data._id,
+              _id: `${data._id}#${post._id}`,
               icon: data.thumbnail,
-              path: "/blog#/view/" + data._id + "/" + post._id,
+              path: `/blog/id/${data._id}/post/${post._id}`,
               shared: data.shared && data.shared.length >= 0 ? true : false,
               modified: data.modified,
             });
