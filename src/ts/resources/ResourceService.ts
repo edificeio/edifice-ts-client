@@ -16,6 +16,7 @@ import {
   App,
 } from "..";
 import { IOdeServices } from "../services/OdeServices";
+import { ServiceRegistry } from "./ServiceRegistry";
 import {
   CopyParameters,
   CopyResult,
@@ -35,72 +36,14 @@ export abstract class ResourceService
   //
   // STATIC REGISTRY
   //
-  private static registry = new Map<
-    string,
-    (context: IOdeServices) => IResourceService & IWebResourceService
+  private static registry = new ServiceRegistry<
+    IResourceService & IWebResourceService
   >();
-
-  /** Register a service */
-  static register(
-    {
-      application,
-      resourceType,
-    }: { application: App | string; resourceType: ResourceType },
-    service: (context: IOdeServices) => IResourceService & IWebResourceService,
-  ) {
-    ResourceService.registry.set(`${application}:main`, service);
-    ResourceService.registry.set(`${application}:${resourceType}`, service);
-  }
-
-  /** Lookup for a service */
-  static findService(
-    lookFor: { application: App | string; resourceType: ResourceType },
-    context: IOdeServices,
-  ): IResourceService & IWebResourceService {
-    return ResourceService.lookupService(lookFor, context);
-  }
-
-  /** Lookup for a main service */
-  static findMainService(
-    { application }: { application: App | string },
-    context: IOdeServices,
-  ): IResourceService & IWebResourceService {
-    return ResourceService.lookupService(
-      { application, resourceType: "main" },
-      context,
-    );
-  }
-
-  /** Check if a service is registered. */
-  static isRegistered({
-    application,
-    resourceType,
-  }: {
-    application: App | string;
-    resourceType: ResourceType | "main";
-  }): boolean {
-    const found = ResourceService.registry.get(
-      `${application}:${resourceType}`,
-    );
-    return found !== undefined;
-  }
-
-  /** Private lookup for a service */
-  private static lookupService(
-    {
-      application,
-      resourceType,
-    }: { application: App | string; resourceType: ResourceType | "main" },
-    context: IOdeServices,
-  ): IResourceService & IWebResourceService {
-    const found = ResourceService.registry.get(
-      `${application}:${resourceType}`,
-    );
-    if (found === undefined) {
-      throw "Service not found: " + `${application}:${resourceType}`;
-    }
-    return found(context);
-  }
+  // Expose some useful functions
+  static register = this.registry.register.bind(this.registry);
+  static findService = this.registry.findService.bind(this.registry);
+  static findMainService = this.registry.findMainService.bind(this.registry);
+  static isRegistered = this.registry.isRegistered.bind(this.registry);
 
   //
   // IMPLEMENTATION

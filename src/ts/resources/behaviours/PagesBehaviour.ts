@@ -1,5 +1,7 @@
-import { IResource } from "../interface";
-import { AbstractBehaviourService } from "./AbstractBehaviourService";
+import {
+  AbstractBehaviourService,
+  ILinkedResource,
+} from "./AbstractBehaviourService";
 
 type PagesData = {
   _id: string;
@@ -35,7 +37,7 @@ export class PagesBehaviour extends AbstractBehaviourService {
 
   async loadResources() {
     const websites = await this.httpGet<PagesData[]>("/pages/list/all");
-    const pages: Array<IResource> = [];
+    const pages: Array<ILinkedResource> = [];
     websites.forEach((website) => {
       const icon = website.thumbnail
         ? website.thumbnail + "?thumbnail=48x48"

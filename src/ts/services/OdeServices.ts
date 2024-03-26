@@ -11,9 +11,14 @@ import { IdiomService } from "../idiom/Service";
 import { AnalyticsService } from "../analytics/Service";
 import { VideoService } from "../video/Service";
 import { App, ResourceType } from "../globals";
-import { IResourceService, IWebResourceService } from "../resources/interface";
+import {
+  IBehaviourService,
+  IResourceService,
+  IWebResourceService,
+} from "../resources/interface";
 import { EmbedderService } from "../embedder/Service";
 import { INotifyFramework, NotifyFrameworkFactory } from "../notify/interfaces";
+import { SnipletsService } from "../resources/SnipletsService";
 
 export interface IOdeServices {
   analytics(): AnalyticsService;
@@ -27,6 +32,7 @@ export interface IOdeServices {
     application: App,
     resourceType?: ResourceType,
   ): IResourceService & IWebResourceService;
+  behaviour(application: App, resourceType: ResourceType): IBehaviourService;
   rights(): RightService;
   session(): SessionService;
   share(): ShareService;
@@ -102,6 +108,10 @@ export class OdeServices implements IOdeServices {
       return ResourceService.findMainService({ application }, this);
     }
     return ResourceService.findService({ application, resourceType }, this);
+  }
+
+  behaviour(application: App, resourceType: ResourceType): IBehaviourService {
+    return SnipletsService.findBehaviour({ application, resourceType }, this);
   }
 
   rights() {
