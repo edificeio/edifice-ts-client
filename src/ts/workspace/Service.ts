@@ -203,6 +203,13 @@ export class WorkspaceService {
     return this.fetchDocuments({ filter, parentId, includeall: true });
   }
 
+  /**
+   * Duplicate and transfers documents if needed to a different folder with the specified application and visibility.
+   * @param documents - The array of documents to transfer.
+   * @param application - The application to associate with the transferred documents.
+   * @param visibility - The visibility of the transferred documents. Defaults to "protected".
+   * @returns A Promise that resolves to an array of transferred WorkspaceElements.
+   */
   async transferDocuments(
     documents: WorkspaceElement[],
     application: string,
