@@ -56,6 +56,7 @@ export interface WorkspaceElement {
 
 /** Supported view preferences */
 export type WorkspacePreferenceView = "list" | "icons" | "carousel";
+export type WorkspaceVisibility = "public" | "protected";
 
 /** Workspace preferences */
 export interface WorkspacePreference {
