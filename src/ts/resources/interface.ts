@@ -222,7 +222,7 @@ export interface IAction {
   /** Needed workflow right to accomplish this action. */
   workflow: string;
   /** Thruthy if the user owns the corresponding right. */
-  available: boolean;
+  available?: boolean;
   target?: "actionbar" | "tree";
   right?: RightRole;
   //FIXME comment relier les actions aux behaviours, qu'on va remplacer.
