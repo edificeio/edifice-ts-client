@@ -52,11 +52,6 @@ export class WorkspaceService {
     return this.context.http();
   }
 
-  private get isAxiosError() {
-    const response = this.http.latestResponse;
-    return !response || response.status < 200 || response.status >= 300;
-  }
-
   private extractMetadata(file: Blob | File) {
     const tmpName = file.name || "";
     const nameSplit = tmpName.split(".");
@@ -109,7 +104,7 @@ export class WorkspaceService {
       `/workspace/document?${args.join("&")}`,
       formData,
     );
-    if (this.isAxiosError) {
+    if (this.http.isResponseError()) {
       throw this.http.latestResponse.statusText;
     }
     return res;
@@ -144,7 +139,7 @@ export class WorkspaceService {
       `/workspace/document/${id}?${args.join("&")}`,
       formData,
     );
-    if (this.isAxiosError) {
+    if (this.http.isResponseError()) {
       throw this.http.latestResponse.statusText;
     }
     return res;
@@ -158,7 +153,7 @@ export class WorkspaceService {
       await this.http.deleteJson<WorkspaceElement>(`/workspace/documents`, {
         ids,
       });
-      if (this.isAxiosError) {
+      if (this.http.isResponseError()) {
         throw this.http.latestResponse.statusText;
       }
     }
@@ -228,10 +223,14 @@ export class WorkspaceService {
     });
     if (documentsToTransfer.length > 0) {
       const res = await this.http.post<WorkspaceElement[]>(
-        `/workspace/document/transfer?application=${application}&visibility=${visibility}`,
-        documents,
+        `/workspace/documents/transfer`,
+        {
+          application: application,
+          visibility: visibility,
+          ids: documentsToTransfer.map((doc) => doc._id),
+        },
       );
-      if (this.isAxiosError) {
+      if (this.http.isResponseError()) {
         throw this.http.latestResponse.statusText;
       }
 
@@ -240,7 +239,9 @@ export class WorkspaceService {
         const documentIndex = documents.findIndex(
           (doc) => doc._id === document._id,
         );
-        documents[documentIndex] = res[index];
+        if (0 <= documentIndex && documentIndex < documents.length) {
+          documents[documentIndex] = res[index];
+        }
       });
 
       // Remove null values from the array (documents that were not copied)
