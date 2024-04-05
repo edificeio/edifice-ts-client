@@ -1,6 +1,10 @@
 import { IOdeServices } from "../services/OdeServices";
 import { DocumentHelper } from "../utils/DocumentHelper";
-import { WorkspaceElement, WorkspaceSearchFilter } from "./interface";
+import {
+  WorkspaceElement,
+  WorkspaceSearchFilter,
+  WorkspaceVisibility,
+} from "./interface";
 import { ID } from "../globals";
 
 interface ElementQuery {
@@ -48,11 +52,6 @@ export class WorkspaceService {
     return this.context.http();
   }
 
-  private get isAxiosError() {
-    const response = this.http.latestResponse;
-    return !response || response.status < 200 || response.status >= 300;
-  }
-
   private extractMetadata(file: Blob | File) {
     const tmpName = file.name || "";
     const nameSplit = tmpName.split(".");
@@ -77,7 +76,7 @@ export class WorkspaceService {
     file: Blob | File,
     params?: {
       parentId?: string;
-      visibility?: "public" | "protected";
+      visibility?: WorkspaceVisibility;
       application?: string;
     },
   ) {
@@ -105,7 +104,7 @@ export class WorkspaceService {
       `/workspace/document?${args.join("&")}`,
       formData,
     );
-    if (this.isAxiosError) {
+    if (this.http.isResponseError()) {
       throw this.http.latestResponse.statusText;
     }
     return res;
@@ -140,7 +139,7 @@ export class WorkspaceService {
       `/workspace/document/${id}?${args.join("&")}`,
       formData,
     );
-    if (this.isAxiosError) {
+    if (this.http.isResponseError()) {
       throw this.http.latestResponse.statusText;
     }
     return res;
@@ -154,7 +153,7 @@ export class WorkspaceService {
       await this.http.deleteJson<WorkspaceElement>(`/workspace/documents`, {
         ids,
       });
-      if (this.isAxiosError) {
+      if (this.http.isResponseError()) {
         throw this.http.latestResponse.statusText;
       }
     }
@@ -199,6 +198,59 @@ export class WorkspaceService {
     return this.fetchDocuments({ filter, parentId, includeall: true });
   }
 
+  /**
+   * Duplicate and transfers documents if needed to a different folder with the specified application and visibility.
+   * @param documents - The array of documents to transfer.
+   * @param application - The application to associate with the transferred documents.
+   * @param visibility - The visibility of the transferred documents. Defaults to "protected".
+   * @returns A Promise that resolves to an array of transferred WorkspaceElements.
+   */
+  async transferDocuments(
+    documents: WorkspaceElement[],
+    application: string,
+    visibility: WorkspaceVisibility = "protected",
+  ): Promise<WorkspaceElement[]> {
+    const documentsToTransfer: WorkspaceElement[] = [];
+    // Copy files from shared/owner to protected/public
+    documents.forEach((document: WorkspaceElement) => {
+      if (visibility === "public" && !document.public) {
+        // Copy file to public
+        documentsToTransfer.push(document);
+      } else if (!document.public && !document.protected) {
+        // Copy file to protected
+        documentsToTransfer.push(document);
+      }
+    });
+    if (documentsToTransfer.length > 0) {
+      const res = await this.http.post<WorkspaceElement[]>(
+        `/workspace/documents/transfer`,
+        {
+          application: application,
+          visibility: visibility,
+          ids: documentsToTransfer.map((doc) => doc._id),
+        },
+      );
+      if (this.http.isResponseError()) {
+        throw this.http.latestResponse.statusText;
+      }
+
+      // Update the documents array with the new documents
+      documentsToTransfer.forEach((document, index) => {
+        const documentIndex = documents.findIndex(
+          (doc) => doc._id === document._id,
+        );
+        if (0 <= documentIndex && documentIndex < documents.length) {
+          documents[documentIndex] = res[index];
+        }
+      });
+
+      // Remove null values from the array (documents that were not copied)
+      return documents.filter((document) => !!document);
+    }
+
+    return documents;
+  }
+
   getThumbnailUrl(
     doc: WorkspaceElement | string,
     width: number = 0,
@@ -216,8 +268,10 @@ export class WorkspaceService {
     } else {
       const thumbnails = doc.thumbnails;
       return thumbnails
-        ? `/workspace/document/${doc._id}?thumbnail=${Object.keys(thumbnails)[0]}`
-        : `/workspace/document/${doc._id}`;
+        ? `/workspace/${
+            doc.public ? "pub/" : ""
+          }document/${doc._id}?thumbnail=${Object.keys(thumbnails)[0]}`
+        : `/workspace/${doc.public ? "pub/" : ""}document/${doc._id}`;
     }
   }
 }
