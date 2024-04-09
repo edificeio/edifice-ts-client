@@ -15,24 +15,18 @@ export class TimelineGeneratorResourceService extends ResourceService {
     const thumbnail = parameters.thumbnail
       ? await this.getThumbnailPath(parameters.thumbnail)
       : "";
-
+    console.log(parameters);
     const res = await this.http.post<CreateResult>(
-      "/timelinegenerator/folder",
+      "/timelinegenerator/timelines",
       {
-        title: parameters.name,
-        description: parameters.description,
-        visibility: parameters.public ? "PUBLIC" : "OWNER",
-        thumbnail,
+        headline: parameters.name,
+        icon: parameters.thumbnail,
+        text: parameters.description,
+        type: "default",
         trashed: false,
-        folder: parameters.folder,
-        slug: parameters.public ? parameters.slug : "",
-        "publish-type": parameters.publishType || "RESTRAINT",
-        "comment-type": "IMMEDIATE",
       },
     );
-
     this.checkHttpResponse(res);
-
     return res;
   }
 
@@ -42,7 +36,7 @@ export class TimelineGeneratorResourceService extends ResourceService {
       `/timelinegenerator/${parameters.entId}`,
       {
         trashed: parameters.trashed ? 1 : 0,
-        title: parameters.name,
+        headline: parameters.name,
         icon: thumbnail,
         subTitle: parameters.description,
       },
