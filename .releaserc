@@ -50,6 +50,11 @@
       "name": "develop-pedago",
       "channel": "develop-pedago",
       "prerelease": "develop-pedago"
+    },
+    {
+      "name": "develop-integration",
+      "channel": "develop-integration",
+      "prerelease": "develop-integration"
     }
   ]
 }
