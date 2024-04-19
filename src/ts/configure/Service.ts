@@ -15,6 +15,10 @@ export class ConfService {
     return configure.Platform.cdnDomain;
   }
 
+  private get notify() {
+    return this.context.notify();
+  }
+
   async getConf(app: App): Promise<IGetConf> {
     const [conf, applications] = await Promise.all([
       this.getThemeConf(),
@@ -26,15 +30,20 @@ export class ConfService {
       this.getWebAppConf({ app, applications: applications ?? [] }),
     ]);
 
-    return {
+    const appConf = {
+      app,
       applications: applications ?? [],
       conf,
       currentApp,
       theme,
     };
+
+    this.notify.onAppConfReady().resolve(appConf);
+
+    return appConf;
   }
 
-  async getPublicConf(app: App): Promise<any> {
+  async getPublicConf<T extends any>(app: App): Promise<T> {
     const publicConfResponse = await this.http.get<any>(`/${app}/conf/public`, {
       queryParams: { _: configure.Platform.deploymentTag },
     });

@@ -22,10 +22,6 @@ export class VideoService {
     return this.context.conf();
   }
 
-  private get session() {
-    return this.context.session();
-  }
-
   /**
    * Returns the video app public conf (maxWeight, maxDuration and accepted extensions)
    * @returns the Video app public conf
@@ -58,12 +54,11 @@ export class VideoService {
       throw new Error("Invalid video filename");
     }
 
+    const browser = `${params.data.browser.name} ${params.data.browser.version}`;
+
     const formData = new FormData();
     formData.append("device", params.data.device || "");
-    formData.append(
-      "browser",
-      `${params.data.browser.name} ${params.data.browser.version}`,
-    );
+    formData.append("browser", browser);
     formData.append("url", params.data.url);
     formData.append("app", params.appCode);
     formData.append("file", params.data.file, params.data.filename);
@@ -75,7 +70,7 @@ export class VideoService {
       encodeUrl += `&duration=${params.duration}`;
     }
 
-    // post video to /videdo/encode API
+    // post video to /video/encode API
     const encodeResponse = await this.http.post<VideoEncodeResponse>(
       encodeUrl,
       formData,
@@ -98,6 +93,20 @@ export class VideoService {
           `/video/status/${encodeResponse.processid}`,
         );
         if (checkResponse.state == "succeed") {
+          if (checkResponse.videoworkspaceid && checkResponse.videosize) {
+            // Track a VIDEO_SAVE event
+            this.context
+              .data()
+              .trackVideoSave(
+                checkResponse.videoworkspaceid,
+                Math.round(params.duration),
+                checkResponse.videosize,
+                params.captation,
+                params.data.url,
+                browser,
+                params.data.device,
+              );
+          }
           return checkResponse;
         }
         if (checkResponse.state == "error") {
@@ -106,40 +115,5 @@ export class VideoService {
       } while (true);
     }
     throw new Error("Video cannot be uploaded.");
-  }
-
-  /**
-   * Generate Save Event
-   * @param appCode app code (example: "blog")
-   * @param elapsedTime encoding elapsed time
-   * @param browser browser name and version
-   * @param deviceType type of device
-   * @param saved uploaded request information
-   * @returns Promise<void>
-   */
-  public async generateSaveEvent(
-    appCode: string,
-    elapsedTime: number,
-    browser: { name: string | undefined; version: string | undefined },
-    deviceType: string | undefined,
-    saved: VideoUploadResponse,
-  ): Promise<void> {
-    const user = await this.session.getUser();
-    const userProfile = await this.session.getUserProfile();
-
-    return this.http.postJson("/video/event/save", {
-      videoId: saved.videoworkspaceid,
-      userId: user?.userId,
-      userProfile: userProfile[0],
-      device: deviceType,
-      browser: `${browser.name} ${browser.version}`,
-      structure: user?.structureNames[0],
-      level: user?.level,
-      duration: Math.round(elapsedTime),
-      weight: saved.videosize,
-      captation: true,
-      url: window.location.hostname,
-      app: appCode,
-    });
   }
 }

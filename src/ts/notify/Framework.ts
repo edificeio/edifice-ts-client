@@ -1,4 +1,4 @@
-import { ITheme, IThemeOverrides } from "../configure/interfaces";
+import { IGetConf, ITheme, IThemeOverrides } from "../configure/interfaces";
 import { IUserInfo } from "../session/interfaces";
 import { Subject } from "./Subject";
 import { IPromisified, INotifyFramework } from "./interfaces";
@@ -10,6 +10,7 @@ const ASYNC_DATA_NAME = {
   LANG_READY: "langReady",
   SKIN_READY: "skinReady",
   OVERRIDE_READY: "overrideReady",
+  APPCONF_READY: "appConfReady",
 } as const;
 
 /** Utility class */
@@ -62,6 +63,10 @@ class NotifyFramework implements INotifyFramework {
 
   public onOverridesReady(): Promisified<IThemeOverrides> {
     return this.asyncData<IThemeOverrides>(ASYNC_DATA_NAME.OVERRIDE_READY);
+  }
+
+  public onAppConfReady(): Promisified<IGetConf> {
+    return this.asyncData<IGetConf>(ASYNC_DATA_NAME.APPCONF_READY);
   }
 
   public promisify<T>(): IPromisified<T> {

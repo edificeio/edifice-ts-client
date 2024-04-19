@@ -6,7 +6,7 @@ import "../resources/services/CollaborativewallResourceService";
 
 import { IOdeServices, OdeServices } from "./OdeServices";
 
-export const odeServices: IOdeServices = new OdeServices();
+export const odeServices: IOdeServices = new OdeServices().initialize();
 
 export type { ILinkedResource } from "../resources/behaviours/AbstractBehaviourService"; // FIXME to be removed when dropping behaviours
 export * from "../resources/SnipletsService"; // FIXME to be removed when dropping behaviours
