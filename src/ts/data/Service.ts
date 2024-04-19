@@ -116,4 +116,14 @@ export class DataService {
 
     this.trackWebEvent(eventData);
   }
+
+  public trackSpeechAndText(direction: "STT" | "TTS") {
+    const eventData = this.addUserInfos({
+      "event-type": "SPEECH_AND_TEXT",
+      function: direction,
+    });
+    if (this.app) eventData["module"] = this.app;
+
+    this.trackWebEvent(eventData);
+  }
 }
