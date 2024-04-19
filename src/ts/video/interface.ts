@@ -1,5 +1,3 @@
-import { DeviceType } from "../globals";
-
 export type VideoEncodeResponse = {
   /** encoding process id, useful for check API */
   processid: string;
@@ -9,7 +7,7 @@ export type VideoEncodeResponse = {
 
 export type VideoUploadParams = {
   data: {
-    device: DeviceType | undefined;
+    device: string | undefined;
     browser: { name: string | undefined; version: string | undefined };
     url: string;
     file: Blob;

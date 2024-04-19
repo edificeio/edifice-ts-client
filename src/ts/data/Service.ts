@@ -1,4 +1,4 @@
-import { App, DeviceType } from "../globals";
+import { App } from "../globals";
 import { EVENT_NAME, IDataTrackEvent, LAYER_NAME } from "../notify/interfaces";
 import { IOdeServices } from "../services/OdeServices";
 import { IUserInfo, UserProfile } from "../session/interfaces";
@@ -15,6 +15,7 @@ export interface PublicConfForDataService {
 
 export class DataService {
   private _webBroker?: IEventBroker;
+  private app?: App;
   private user?: IUserInfo;
   private profile?: UserProfile;
 
@@ -31,17 +32,14 @@ export class DataService {
     try {
       // Wait for the app to initialize
       const { app } = await this.notify.onAppConfReady().promise;
+      this.app = app;
       this.user = await this.odeServices.session().getUser();
       this.profile = await this.odeServices.session().getUserProfile();
 
       // Instanciate a data broker depending on the current app conf, when known.
       const { ["data-service"]: params } =
         await this.conf.getPublicConf<PublicConfForDataService>(app);
-      if (params) {
-        this._webBroker = new WebBroker(this.odeServices).initialize(
-          params.web,
-        );
-      }
+      this._webBroker = new WebBroker(this.odeServices).initialize(params?.web);
     } catch {
       console.log("DataService not initialized, usage data unavailable.");
     }
@@ -80,11 +78,11 @@ export class DataService {
     isCaptation: boolean,
     url: string,
     browser: string,
-    deviceType?: DeviceType,
-    app?: App,
+    deviceType?: string,
   ) {
     const eventData = this.addUserInfos({
       "event-type": "VIDEO_SAVE",
+      module: "video",
       video_id,
       browser,
       duration: Math.round(duration),
@@ -92,7 +90,28 @@ export class DataService {
       source: isCaptation ? "CAPTURED" : "UPLOADED",
       url,
     });
-    if (app) eventData["override-module"] = app;
+    if (this.app) eventData["override-module"] = this.app;
+    if (deviceType) eventData["device_type"] = deviceType;
+
+    this.trackWebEvent(eventData);
+  }
+
+  public trackVideoRead(
+    video_id: string,
+    isCaptation: boolean,
+    url: string,
+    browser: string,
+    deviceType?: string,
+  ) {
+    const eventData = this.addUserInfos({
+      "event-type": "VIDEO_READ",
+      module: "video",
+      video_id,
+      browser,
+      source: isCaptation ? "CAPTURED" : "UPLOADED",
+      url,
+    });
+    if (this.app) eventData["override-module"] = this.app;
     if (deviceType) eventData["device_type"] = deviceType;
 
     this.trackWebEvent(eventData);

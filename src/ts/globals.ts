@@ -92,9 +92,6 @@ export const APP = {
 } as const;
 export type App = (typeof APP)[keyof typeof APP] | string; // type App = "admin" | "archive" | "auth"...
 
-/** Valid type of devices for the data pipeline. */
-export type DeviceType = "Mobile" | "Tablet" | "Desktop";
-
 //-- Semantical typings
 /**
  * An ID is a unique string in its applicable field.
