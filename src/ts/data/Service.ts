@@ -3,7 +3,7 @@ import { EVENT_NAME, IDataTrackEvent, LAYER_NAME } from "../notify/interfaces";
 import { IOdeServices } from "../services/OdeServices";
 import { IUserInfo, UserProfile } from "../session/interfaces";
 import { WebBroker } from "./WebBroker";
-import { DataServiceProps, IEventBroker } from "./interface";
+import { DataServiceProps, IDataService, IEventBroker } from "./interface";
 
 /** A data event. */
 type IDataEvent = IDataTrackEvent["data"];
@@ -13,7 +13,7 @@ export interface PublicConfForDataService {
   "data-service"?: DataServiceProps;
 }
 
-export class DataService {
+export class DataService implements IDataService {
   private _webBroker?: IEventBroker;
   private app?: App;
   private user?: IUserInfo;
@@ -28,6 +28,7 @@ export class DataService {
     return this.odeServices.notify();
   }
 
+  // This method is called once, by the service container.
   public async initialize() {
     try {
       // Wait for the app to initialize

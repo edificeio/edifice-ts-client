@@ -20,12 +20,13 @@ import { EmbedderService } from "../embedder/Service";
 import { INotifyFramework, NotifyFrameworkFactory } from "../notify/interfaces";
 import { SnipletsService } from "../resources/SnipletsService";
 import { DataService } from "../data/Service";
+import { IDataService } from "../data/interface";
 
 export interface IOdeServices {
   analytics(): AnalyticsService;
   cache(): CacheService;
   conf(): ConfService;
-  data(): DataService;
+  data(): IDataService;
   directory(): DirectoryService;
   http(): HttpService;
   idiom(): IdiomService;
