@@ -116,6 +116,7 @@ export class WorkspaceService {
     params?: {
       alt?: string;
       legend?: string;
+      name?: string;
     },
   ) {
     //prepare metadata
@@ -132,7 +133,10 @@ export class WorkspaceService {
       args.push(`alt=${params.alt}`);
     }
     if (params?.legend) {
-      args.push(`alt=${params.legend}`);
+      args.push(`legend=${params.legend}`);
+    }
+    if (params?.name) {
+      args.push(`name=${params.name}`);
     }
     //make query
     const res = await this.http.putFile<WorkspaceElement>(
@@ -178,9 +182,7 @@ export class WorkspaceService {
     };
   }
 
-  private async fetchDocuments(
-    params: ElementQuery,
-  ): Promise<WorkspaceElement[]> {
+  async searchDocuments(params: ElementQuery): Promise<WorkspaceElement[]> {
     let filesO: WorkspaceElement[] =
       params.filter !== "external" || params.parentId
         ? await this.http.get<WorkspaceElement[]>("/workspace/documents", {
@@ -195,7 +197,7 @@ export class WorkspaceService {
     filter: WorkspaceSearchFilter,
     parentId?: ID,
   ): Promise<WorkspaceElement[]> {
-    return this.fetchDocuments({ filter, parentId, includeall: true });
+    return this.searchDocuments({ filter, parentId, includeall: true });
   }
 
   /**
