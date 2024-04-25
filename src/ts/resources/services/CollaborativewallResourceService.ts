@@ -12,12 +12,11 @@ const RESOURCE = "collaborativewall";
 
 const backgroundImages = [
   "img/blue-topo.png",
-  "img/edifice.png",
   "img/green-hill.png",
   "img/orange-hill.png",
 ];
 
-const randomNumber = Math.trunc(Math.random() * (5 - 0) + 0);
+const randomNumber = Math.trunc(Math.random() * (backgroundImages.length - 0) + 0);
 
 export class CollaborativewallResourceService extends ResourceService {
   async create(parameters: CreateParameters): Promise<CreateResult> {
