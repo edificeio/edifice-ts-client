@@ -1,5 +1,7 @@
-import { IResource } from "../interface";
-import { AbstractBehaviourService } from "./AbstractBehaviourService";
+import {
+  AbstractBehaviourService,
+  ILinkedResource,
+} from "./AbstractBehaviourService";
 
 type TimelineData = {
   icon: string;
@@ -20,7 +22,7 @@ export class TimelinegeneratorBehaviour extends AbstractBehaviourService {
   RESOURCE = "timelinegenerator";
 
   loadResources() {
-    return new Promise<IResource[]>(async (resolve, reject) => {
+    return new Promise<ILinkedResource[]>(async (resolve, reject) => {
       try {
         const datas = await this.httpGet<TimelineData[]>(
           "/timelinegenerator/timelines",

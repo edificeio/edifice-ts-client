@@ -249,6 +249,7 @@ export interface IOdeTheme {
 }
 
 export interface IGetConf {
+  app: App;
   applications: IWebApp[];
   conf: IThemeConf;
   currentApp: IWebApp | undefined;

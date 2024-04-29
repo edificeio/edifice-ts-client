@@ -11,14 +11,22 @@ import { IdiomService } from "../idiom/Service";
 import { AnalyticsService } from "../analytics/Service";
 import { VideoService } from "../video/Service";
 import { App, ResourceType } from "../globals";
-import { IResourceService, IWebResourceService } from "../resources/interface";
+import {
+  IBehaviourService,
+  IResourceService,
+  IWebResourceService,
+} from "../resources/interface";
 import { EmbedderService } from "../embedder/Service";
 import { INotifyFramework, NotifyFrameworkFactory } from "../notify/interfaces";
+import { SnipletsService } from "../resources/SnipletsService";
+import { DataService } from "../data/Service";
+import { IDataService } from "../data/interface";
 
 export interface IOdeServices {
   analytics(): AnalyticsService;
   cache(): CacheService;
   conf(): ConfService;
+  data(): IDataService;
   directory(): DirectoryService;
   http(): HttpService;
   idiom(): IdiomService;
@@ -27,6 +35,7 @@ export interface IOdeServices {
     application: App,
     resourceType?: ResourceType,
   ): IResourceService & IWebResourceService;
+  behaviour(application: App, resourceType: ResourceType): IBehaviourService;
   rights(): RightService;
   session(): SessionService;
   share(): ShareService;
@@ -39,6 +48,7 @@ export class OdeServices implements IOdeServices {
   private _analytics: AnalyticsService;
   private _cache: CacheService;
   private _conf: ConfService;
+  private _data: DataService;
   private _directory: DirectoryService;
   private _http: HttpService;
   private _idiom: IdiomService;
@@ -54,6 +64,7 @@ export class OdeServices implements IOdeServices {
     this._analytics = new AnalyticsService(this);
     this._cache = new CacheService(this);
     this._conf = new ConfService(this);
+    this._data = new DataService(this);
     this._directory = new DirectoryService(this);
     this._http = new HttpService(this);
     this._idiom = new IdiomService(this);
@@ -66,6 +77,11 @@ export class OdeServices implements IOdeServices {
     this._embedder = new EmbedderService(this);
   }
 
+  public initialize(): OdeServices {
+    this._data.initialize();
+    return this;
+  }
+
   analytics() {
     return this._analytics;
   }
@@ -76,6 +92,10 @@ export class OdeServices implements IOdeServices {
 
   conf() {
     return this._conf;
+  }
+
+  data() {
+    return this._data;
   }
 
   directory(): DirectoryService {
@@ -102,6 +122,10 @@ export class OdeServices implements IOdeServices {
       return ResourceService.findMainService({ application }, this);
     }
     return ResourceService.findService({ application, resourceType }, this);
+  }
+
+  behaviour(application: App, resourceType: ResourceType): IBehaviourService {
+    return SnipletsService.findBehaviour({ application, resourceType }, this);
   }
 
   rights() {

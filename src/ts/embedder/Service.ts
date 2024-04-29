@@ -51,24 +51,39 @@ export class EmbedderService {
   private isUrlFromProvider(url: string, embedder: Embedder): boolean {
     // Regex to remove the variable from the URL pattern (remove everything inside {...})
     const splitURLRegex = new RegExp("[^{}]+(?=(?:[^{}]*{[^}]*})*[^}]*$)", "g");
+    const splitVariableRegex = new RegExp("{[^}]*}", "g");
     if (typeof embedder.url === "string") {
       embedder.url = [embedder.url];
     }
 
+    let isFromProvider = false;
     for (const pattern of embedder.url) {
+      let isFromPattern = true;
       const urlParts = pattern.match(splitURLRegex) || [];
-      let isFromProvider = true;
+      const urlPartsFiltered: string[] = [];
+      const variableParts = pattern.match(splitVariableRegex) || [];
 
-      urlParts.forEach((urlPart) => {
-        if (urlPart.length > 1 && !url.includes(urlPart)) {
-          isFromProvider = false;
+      // Filter urlParts we want to check with the URL given
+      variableParts.forEach((variablePart, index) => {
+        if (variablePart.includes("ignore")) {
+          // If the variable is an ignore, we don't need to check the rest of the URL
+          return;
+        }
+        urlPartsFiltered.push(urlParts[index]);
+      });
+
+      urlPartsFiltered.forEach((urlPart) => {
+        if (!url.includes(urlPart)) {
+          isFromPattern = false;
           return;
         }
       });
-      return isFromProvider;
-    }
 
-    return false;
+      if (isFromPattern) {
+        isFromProvider = true;
+      }
+    }
+    return isFromProvider;
   }
 
   /**

@@ -1,6 +1,9 @@
 import { ID } from "../../globals";
-import { GetContextParameters, IResource } from "../interface";
-import { AbstractBehaviourService } from "./AbstractBehaviourService";
+import { GetContextParameters } from "../interface";
+import {
+  AbstractBehaviourService,
+  ILinkedResource,
+} from "./AbstractBehaviourService";
 
 type Data = {
   _id: ID;
@@ -26,7 +29,7 @@ export class WorkspaceBehaviour extends AbstractBehaviourService {
   RESOURCE = "workspace";
 
   loadResources({ search, asset_id }: GetContextParameters) {
-    return new Promise<IResource[]>(async (resolve, reject) => {
+    return new Promise<ILinkedResource[]>(async (resolve, reject) => {
       try {
         let url = "/workspace/documents?filter=all&hierarchical=true";
         if (asset_id && asset_id.length) url += `&search=${search}`;

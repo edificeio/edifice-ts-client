@@ -1,4 +1,24 @@
-import { App, ID, ResourceType, RightRole, RightStringified } from "..";
+import {
+  App,
+  ID,
+  ILinkedResource,
+  ResourceType,
+  RightRole,
+  RightStringified,
+} from "..";
+
+/**
+ * @deprecated Used by the internal linker ONLY
+ * Old-fashioned way of listing resources => `behaviours.loadResources()`
+ */
+export interface IBehaviourService {
+  /** App providing this service. */
+  getApplication(): App | string;
+  /** Type of resource this service can manage. */
+  getResourceType(): ResourceType;
+  /** Load resources. */
+  loadResources(parameters: GetContextParameters): Promise<ILinkedResource[]>;
+}
 
 /**
  * Resources management service.
@@ -36,10 +56,11 @@ export interface IResourceService {
   ): Promise<IActionResult>;
 
   //--------------------------------------- SEARCH
-  /** Create a search context. */
+  /** Create a search context and get the first results page. */
   createContext(parameters: GetContextParameters): Promise<GetContextResult>;
   /** Search / paginate within a search context. */
   searchContext(parameters: GetContextParameters): Promise<ISearchResults>;
+  /** Search 1 resource by `id` */
   searchResource(parameters: GetResourceParameters): Promise<IResource>;
 
   //--------------------------------------- FOLDERS MANAGEMENT
@@ -110,7 +131,9 @@ export interface IResource {
 export const ACTION = {
   SEARCH: "search",
   CREATE: "create",
+  CREATE_PUBLIC: "createPublic",
   OPEN: "open",
+  EDIT: "edit",
   MANAGE: "manage", // Query properties metadata
   UPD_PROPS: "properties", // Update properties
   COMMENT: "comment",
@@ -199,8 +222,8 @@ export interface IAction {
   /** Needed workflow right to accomplish this action. */
   workflow: string;
   /** Thruthy if the user owns the corresponding right. */
-  available: boolean;
-  target?: "actionbar";
+  available?: boolean;
+  target?: "actionbar" | "tree";
   right?: RightRole;
   //FIXME comment relier les actions aux behaviours, qu'on va remplacer.
 }

@@ -65,10 +65,10 @@ export class BlogResourceService extends ResourceService {
       : `/blog#/edit/new`;
   }
   getViewUrl(resourceId: string): string {
-    return `/blog#/view/${resourceId}`;
+    return `/blog/id/${resourceId}`;
   }
   getPrintUrl(resourceId: string): string {
-    return `/blog/print/blog#/print/${resourceId}`;
+    return `/blog/print/${resourceId}`;
   }
 }
 ResourceService.register(

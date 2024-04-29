@@ -70,7 +70,7 @@ export class Session implements ISession {
     return http
       .get<IUserInfo>("/auth/oauth2/userinfo")
       .then((u) => {
-        if (http.isResponseError()) {
+        if (http.isResponseError() || typeof u === "string") {
           // Backend tries to redirect the user => not logged in !
           throw ERROR_CODE.NOT_LOGGED_IN;
         }

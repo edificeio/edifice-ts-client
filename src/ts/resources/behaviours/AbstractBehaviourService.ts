@@ -1,17 +1,11 @@
-import { ERROR_CODE, ID, IHttpParams, ResourceType } from "../..";
+import { ID, IHttpParams, ResourceType } from "../..";
 import { CacheService } from "../../cache/Service";
 import { IOdeServices } from "../../services/OdeServices";
 import {
   GetContextParameters,
-  GetResourceParameters,
+  IBehaviourService,
   IResource,
-  IResourceService,
-  ISearchResults,
 } from "../interface";
-
-function notSupported(): any {
-  throw ERROR_CODE.NOT_SUPPORTED;
-}
 
 export interface LinkerModel {
   _id: ID;
@@ -33,16 +27,14 @@ export interface ILinkedResource extends IResource {
 
 /**
  * TO BE DEPRECATED. DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING.
- * Facade for the old-fashioned way of listing resources => behaviours.loadResources()
- * Any other functionality is unavailable.
  */
-export abstract class AbstractBehaviourService implements IResourceService {
+export abstract class AbstractBehaviourService implements IBehaviourService {
   abstract APP: string;
   abstract RESOURCE: ResourceType;
   /** Adapter function to be implemented by subclasses. */
   abstract loadResources(
     parameters?: GetContextParameters,
-  ): Promise<IResource[]>;
+  ): Promise<ILinkedResource[]>;
 
   //
   // IMPLEMENTATION
@@ -51,15 +43,6 @@ export abstract class AbstractBehaviourService implements IResourceService {
     this._cache = new CacheService(this.context);
   }
 
-  searchResource(parameters: GetResourceParameters): Promise<IResource> {
-    throw new Error("Method not implemented.");
-  }
-
-  async searchContext(
-    parameters: GetContextParameters,
-  ): Promise<ISearchResults> {
-    return this.resourcesToResults(await this.loadResources(parameters));
-  }
   getApplication(): string {
     return this.APP;
   }
@@ -98,36 +81,4 @@ export abstract class AbstractBehaviourService implements IResourceService {
       path: resource.path,
     } as ILinkedResource;
   }
-
-  protected resourcesToResults(resources: IResource[]) {
-    return {
-      folders: [],
-      pagination: {
-        startIdx: 0,
-        maxIdx: resources.length - 1,
-        pageSize: resources.length,
-      },
-      resources,
-    };
-  }
-
-  //---------------------------------------------
-  //--- Every other members are not supported ---
-  //---------------------------------------------
-  createContext = notSupported;
-  create = notSupported;
-  update = notSupported;
-  getFormUrl = notSupported;
-  getViewUrl = notSupported;
-  getPrintUrl = notSupported;
-  getShareReadUrl = notSupported;
-  getSaveShareUrl = notSupported;
-  publish = notSupported;
-  createFolder = notSupported;
-  updateFolder = notSupported;
-  moveToFolder = notSupported;
-  listSubfolders = notSupported;
-  deleteAll = notSupported;
-  trashAll = notSupported;
-  restoreAll = notSupported;
 }

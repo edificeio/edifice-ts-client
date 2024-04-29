@@ -1,4 +1,4 @@
-import { ITheme, IThemeOverrides } from "../configure/interfaces";
+import { IGetConf, ITheme, IThemeOverrides } from "../configure/interfaces";
 import { IUserInfo } from "../session/interfaces";
 import { notify } from "./Framework";
 import { IHttpParams, IHttpResponse } from "../transport/interfaces";
@@ -46,6 +46,13 @@ export interface INotifyFramework {
   onOverridesReady(): IPromisified<IThemeOverrides>;
 
   /**
+   * Notify that the application configuration has been loaded.
+   * This data is not intended to change after being resolved.
+   * Promise / resolve / reject of application configuration.
+   */
+  onAppConfReady(): IPromisified<IGetConf>;
+
+  /**
    * Notify that an event occured.
    * By definition, an event can occur multiple times (otherwise it is a one-time "process", see above) and be watched by many targets.
    * => We model it as a subject with many potential subscribers.
@@ -65,14 +72,18 @@ export const LAYER_NAME = {
   WIDGETS: "widgets",
   EXPLORER: "explorer",
   TRANSPORT: "transport",
+  WEB_DATA: "webDataPipeline",
 } as const;
 export type LayerName = (typeof LAYER_NAME)[keyof typeof LAYER_NAME];
+export type TransportLayer = typeof LAYER_NAME.TRANSPORT;
+export type WebDataLayer = typeof LAYER_NAME.WEB_DATA;
 
 //-------------------------------------
 export const EVENT_NAME = {
   USERPREF_CHANGED: "userprefChanged",
   SEARCH_RESULTED: "searchResulted",
   ERROR_OCCURED: "error",
+  DATA_TRACKED: "track",
 } as const;
 export type EventName = (typeof EVENT_NAME)[keyof typeof EVENT_NAME];
 
@@ -81,6 +92,24 @@ export type EventName = (typeof EVENT_NAME)[keyof typeof EVENT_NAME];
 export interface ISubjectMessage {
   name: EventName;
   data?: any;
+}
+/** A subscription to receive ISubjectMessage */
+//-------------------------------------
+export interface ISubscription {
+  /** Close the subscription */
+  revoke: () => void;
+}
+/** Generic typing of a subject. */
+//-------------------------------------
+export interface ISubject {
+  subscribe(
+    layer: Omit<LayerName, TransportLayer | WebDataLayer>,
+    handler: <T extends ISubjectMessage>(message: T) => void,
+  ): ISubscription;
+  publish(
+    layer: Omit<LayerName, TransportLayer | WebDataLayer>,
+    message: ISubjectMessage,
+  ): void;
 }
 
 /** Typing of error messages on the TRANSPORT layer. */
@@ -93,35 +122,33 @@ export interface IHttpErrorEvent extends ISubjectMessage {
     payload?: any;
   };
 }
-
-/** A subscription to receive ISubjectMessage */
-//-------------------------------------
-export interface ISubscription {
-  /** Close the subscription */
-  revoke: () => void;
-}
-
-export type TransportLayer = typeof LAYER_NAME.TRANSPORT;
-
-/** + Generic typing of a subject. */
-//-------------------------------------
-export interface ISubject {
-  subscribe(
-    layer: Omit<LayerName, TransportLayer>,
-    handler: <T extends ISubjectMessage>(message: T) => void,
-  ): ISubscription;
-  publish(
-    layer: Omit<LayerName, TransportLayer>,
-    message: ISubjectMessage,
-  ): void;
-}
-
-/** + Overloaded typing of a subject, dedicated to transport errors. */
+/** Overloaded typing of a subject, dedicated to transport errors. */
 //-------------------------------------
 export declare interface ISubject {
   publish(layer: TransportLayer, message: IHttpErrorEvent): void;
   subscribe(
     layer: TransportLayer,
     handler: (message: IHttpErrorEvent) => void,
+  ): ISubscription;
+}
+
+/** Typing of tracked events on a DATA layer. */
+//-------------------------------------
+export interface IDataTrackEvent extends ISubjectMessage {
+  name: typeof EVENT_NAME.DATA_TRACKED;
+  data: {
+    "event-type": string;
+    module?: string;
+    userId?: string;
+    [key: string]: any;
+  };
+}
+/** Overloaded typing of a subject, dedicated to tracking web data events. */
+//-------------------------------------
+export declare interface ISubject {
+  publish(layer: WebDataLayer, message: IDataTrackEvent): void;
+  subscribe(
+    layer: WebDataLayer,
+    handler: (message: IDataTrackEvent) => void,
   ): ISubscription;
 }
