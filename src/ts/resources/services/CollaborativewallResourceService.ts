@@ -21,7 +21,7 @@ const randomNumber = Math.trunc(Math.random() * (backgroundImages.length - 0) + 
 export class CollaborativewallResourceService extends ResourceService {
   async create(parameters: CreateParameters): Promise<CreateResult> {
     const thumbnail = await this.getThumbnailPath(parameters.thumbnail);
-    const res = await this.http.post<CreateResult>(`/collaborativewall`, {
+    const res = await this.http.post<{ _id: string }>(`/collaborativewall`, {
       name: parameters.name,
       description: parameters.description,
       background: {
@@ -32,7 +32,7 @@ export class CollaborativewallResourceService extends ResourceService {
     });
 
     this.checkHttpResponse(res);
-    return res;
+    return { entId: res._id, thumbnail };
   }
 
   async update(parameters: CollaborativewallUpdate): Promise<UpdateResult> {
